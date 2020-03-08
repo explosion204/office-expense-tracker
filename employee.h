@@ -17,6 +17,6 @@ public:
     QString getName();
     QString getPosition();
     int getSeniority();
-}
+};
 
 #endif // EMPLOYEE_H

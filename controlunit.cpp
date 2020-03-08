@@ -5,6 +5,9 @@ ControlUnit* ControlUnit::instance = nullptr;
 ControlUnit::ControlUnit()
 {
     authorized = false;
+    departments_list_modified = std::vector<Department*>();
+    members_list_modified = std::vector<Employee*>();
+    expenses_list_modified = std::vector<Expense*>();
 }
 
 ControlUnit* ControlUnit::getInstance()
@@ -21,13 +24,44 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
     std::string pass_hash = std::string();
     picosha2::hash256_hex_string(password.toStdString(), pass_hash);
     db->sendSqlQuery("create table auth "
-                     "(user_id integer primary key autoincrement unique, "
-                     "username varchar(32), "
-                     "password varchar(64), "
-                     "account_type varchar(9))");
-    db->sendSqlQuery("insert into auth (username, password, account_type) values (\"" + username + "\", \"" + QString::fromStdString(pass_hash) + "\", "
+                     "(user_id integer primary key unique, "
+                     "username text, "
+                     "password text, "
+                     "account_type text)");
+    db->sendSqlQuery("create table Departments "
+                     "(Id integer not null primary key unique, "
+                     "Title text not null)");
+    db->sendSqlQuery("create table Employees "
+                     "(Id integer not null primary key unique, "
+                     "Department_id integer not null unique, "
+                     "Name text not null, "
+                     "Position text not null, "
+                     "Seniority text not null)");
+    db->sendSqlQuery("create table Expenses "
+                     "(Id integer not null primary key unique, "
+                     "Department_id integer not null primary key, "
+                     "Name text not null, "
+                     "Description text not null, "
+                     "Limit integer not null, "
+                     "Value integer not null)");
+    db->sendSqlQuery("create table Departments_modified "
+                     "(Id integer not null primary key unique, "
+                     "Title text not null)");
+    db->sendSqlQuery("create table Expenses_modified "
+                     "(Id integer not null primary key unique, "
+                     "Department_id integer not null primary key, "
+                     "Name text not null, "
+                     "Description text not null, "
+                     "Limit integer not null, "
+                     "Value integer not null)");
+    db->sendSqlQuery("create table Expenses_modified "
+                     "(Id integer not null primary key unique, "
+                     "Name text not null, "
+                     "Description text not null, "
+                     "Limit integer not null, "
+                     "Value integer not null)");
+    db->sendSqlQuery("insert into auth (user_id, username, password, account_type) values (0, \"" + username + "\", \"" + QString::fromStdString(pass_hash) + "\", "
                     "\"ADMIN\")");
-    db->close();
 }
 
 bool ControlUnit::authorize(QString db_path, QString master_key, QString username, QString password)
@@ -40,25 +74,50 @@ bool ControlUnit::authorize(QString db_path, QString master_key, QString usernam
     return !query.value(1).toString().toStdString().compare(pass_hash) ? true : false;
 }
 
-std::vector<Department*> ControlUnit::getDepartments()
+void ControlUnit::pullData()
 {
-    return departments_list;
-}
-
-void ControlUnit::addDepartment(int id, QString title)
-{
-    Department *new_department = new Department(id, title);
-    departments_list.push_back(new_department);
-}
-
-void ControlUnit::removeDepartment(int id)
-{
-    for (auto iter = departments_list.begin(); iter != departments_list.end(); i++)
+    QSqlQuery query = Database::getInstance()->sendSqlQuery("select Id, Title from Departments");
+    while (query.next())
     {
-        if ((*iter)->getId() == id)
+        int id = query.value(0).toInt();
+        QString title = query.value(1).toString();
+        Department *department = new Department(id, title);
+        Aggregator::getInstance()->getDepartments().push_back(department);
+    }
+    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Position, Seniority");
+    while (query.next())
+    {
+        int id = query.value(0).toInt();
+        int department_id = query.value(1).toInt();
+        QString name = query.value(2).toString();
+        QString position = query.value(3).toString();
+        int seniority = query.value(4).toInt();
+        Department *department = Aggregator::getInstance()->getDepartment(department_id);
+        if (department != nullptr)
+            department->addMember(id, name, position, seniority);
+    }
+}
+
+void ControlUnit::pushAllData()
+{
+    for (auto department: Aggregator::getInstance()->getDepartments())
+    {
+        int department_id = department->getId();
+        QString title = department->getTitle();
+        Database::getInstance()->sendSqlQuery("insert into Departments (Id, Title) values (" + QString(department_id) + ", " + title + ")");
+        for (auto employee: department->getEmployees())
         {
-            departments_list.erase(iter);
-            break;
+            int id = employee->getId();
+            QString name = employee->getName();
+            QString position = employee->getPosition();
+            int seniority = employee->getSeniority();
+            Database::getInstance()->sendSqlQuery("insert into Employees (Id, Department_id, Name, Position, Seniority) values (" + QString(id) + ", "
+                            + QString(department_id) + "), \"" + QString(name) + "\", \"" + QString(position) + "\", " + QString(seniority) + "");
         }
     }
+}
+
+void ControlUnit::pushModifiedData()
+{
+
 }

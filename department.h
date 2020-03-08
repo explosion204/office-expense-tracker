@@ -4,27 +4,32 @@
 #include <vector>
 #include <memory>
 #include <QString>
+#include <QObject>
 #include <employee.h>
 #include <manager.h>
 #include <expense.h>
 
-class Department
+class Department : QObject
 {
+    Q_OBJECT
 private:
     QString title;
     int id;
-    int mem_count;
     std::vector<Expense*> expense_list;
     std::vector<Employee*> employee_list;
+    std::vector<Employee*> modified_employee_list;
 public:
     Department(int id, QString title);
     std::vector<Expense*> getExpenses();
+    std::vector<Employee*> getEmployees();
     QString getTitle();
     int getId();
-    int getMemCount();
     void addMember(int id, QString name, QString position, int seniority);
+    void editMember(int id, QString name, QString position, int seniority);
+    Employee* getMember(int id);
     void setManager(int id);
     void addExpense(int id, QString name, QString description, int limit, int value = 0);
+    Expense* getExpense(int id);
     void removeMember(int id);
     void removeExpense(int id);
 };

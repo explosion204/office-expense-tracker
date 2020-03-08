@@ -23,4 +23,3 @@ QString Employee::getName() { return name; }
 QString Employee::getPosition() { return position; }
 
 int Employee::getSeniority() { return seniority; }
-

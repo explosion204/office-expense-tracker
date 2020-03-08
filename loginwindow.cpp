@@ -45,10 +45,13 @@ void LoginWindow::on_openDBButton_clicked()
 {
     ui->backButton->setEnabled(true);
     db_path = QFileDialog::getOpenFileName(this, tr("Open a database file"), "", tr("database file (*.db)"));
-    showAuthEdits();
-    Animation::fadeIn(ui->loginButton, 350);
-    ui->loginButton->show();
-    ui->loginButton->setEnabled(true);
+    if (!db_path.isEmpty())
+    {
+        showAuthEdits();
+        Animation::fadeIn(ui->loginButton, 350);
+        ui->loginButton->show();
+        ui->loginButton->setEnabled(true);
+    }
 }
 
 void LoginWindow::on_createButton_clicked()
@@ -89,7 +92,9 @@ void LoginWindow::showStartup()
     ui->masterKeyEdit->setEnabled(false);
     ui->usernameEdit->setEnabled(false);
     ui->passwordEdit->setEnabled(false);
-
+    ui->masterKeyEdit->clear();
+    ui->usernameEdit->clear();
+    ui->passwordEdit->clear();
     if (!ui->createButton->isHidden())
     {
         Animation::fadeOut(ui->createButton, 350);
