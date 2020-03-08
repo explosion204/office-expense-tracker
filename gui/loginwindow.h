@@ -5,6 +5,7 @@
 #include <QtSql>
 #include <QMessageBox>
 #include <QFileDialog>
+#include <QGridLayout>
 #include <gui/mainwindow.h>
 #include <service/controlunit.h>
 #include <service/animation.h>

@@ -6,6 +6,10 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->centralwidget->setLayout(new QGridLayout());
+    ui->centralwidget->layout()->addWidget(ui->tabWidget);
+    ui->tabWidget->setTabEnabled(1, false);
+    ui->tabWidget->setTabEnabled(3, false);
 }
 
 MainWindow::~MainWindow()

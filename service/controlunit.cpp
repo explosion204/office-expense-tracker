@@ -37,13 +37,13 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                      "Department_id integer not null unique, "
                      "Name text not null, "
                      "Position text not null, "
-                     "Seniority text not null)");
+                     "Seniority integer not null)");
     db->sendSqlQuery("create table Expenses "
                      "(Id integer not null primary key unique, "
-                     "Department_id integer not null primary key, "
+                     "Department_id integer not null, "
                      "Name text not null, "
                      "Description text not null, "
-                     "Limit integer not null, "
+                     "Limit_value integer not null, "
                      "Value integer not null)");
     db->sendSqlQuery("create table Departments_modified "
                      "(Id integer not null primary key unique, "
@@ -54,18 +54,19 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                      "Department_id integer not null unique, "
                      "Name text not null, "
                      "Position text not null, "
-                     "Seniority text not null,"
+                     "Seniority integer not null,"
                      "Status text not null)");
     db->sendSqlQuery("create table Expenses_modified "
                      "(Id integer not null primary key unique, "
-                     "Department_id integer not null primary key, "
+                     "Department_id integer not null, "
                      "Name text not null, "
                      "Description text not null, "
-                     "Limit integer not null, "
+                     "Limit_value integer not null, "
                      "Value integer not null,"
                      "Status text not null)");
     db->sendSqlQuery("insert into auth (user_id, username, password, account_type) values (0, \"" + username + "\", \"" + QString::fromStdString(pass_hash) + "\", "
                     "\"ADMIN\")");
+    db->close();
 }
 
 void ControlUnit::authorize(QString db_path, QString master_key, QString username, QString password)
@@ -124,7 +125,7 @@ void ControlUnit::pullValidatedData()
         if (department != nullptr)
             department->addMember(id, name, position, seniority);
     }
-    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit, Value from Expenses");
+    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit_value, Value from Expenses");
     while (query.next())
     {
         int id = query.value(0).toInt();
@@ -162,7 +163,7 @@ void ControlUnit::pushValidatedData()
             QString description = expense->getDescription();
             int limit = expense->getLimit();
             int value = expense->getValue();
-            Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit, Value) values (" + QString(id) + ", "
+            Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value) values (" + QString(id) + ", "
                             + QString(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString(limit) + ", " + QString(value) + ")");
         }
     }
@@ -191,7 +192,7 @@ void ControlUnit::pullModifiedData()
         Employee *employee = new Employee(id, department_id, name, position, seniority, status);
         members_list_modified.push_back(employee);
     }
-    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit, Value, Status from Expenses");
+    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit_value, Value, Status from Expenses");
     while (query.next())
     {
         int id = query.value(0).toInt();
@@ -236,7 +237,7 @@ void ControlUnit::pushModifiedData()
         int limit = expense->getLimit();
         int value = expense->getValue();
         QString status = DataStatusTools::dataStatusToString(expense->getStatus());
-        Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit, Value, Status) values (" + QString(id) + ", "
+        Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value, Status) values (" + QString(id) + ", "
                         + QString(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString(limit) + ", " + QString(value) + ", \"" + status + "\")");
     }
 }

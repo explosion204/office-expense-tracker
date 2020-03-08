@@ -8,6 +8,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui(new Ui::LoginWindow)
 {
     ui->setupUi(this);
+    this->setFixedSize(600, 500);
     Animation::fadeOut(ui->masterKeyEdit, 0);
     Animation::fadeOut(ui->usernameEdit, 0);
     Animation::fadeOut(ui->passwordEdit, 0);
@@ -29,7 +30,7 @@ void LoginWindow::on_loginButton_clicked()
     if (ControlUnit::getInstance()->isAuthorized())
     {
         close();
-        (new MainWindow())->show();
+        (new MainWindow())->showMaximized();
     }
 }
 
@@ -68,6 +69,8 @@ void LoginWindow::on_createButton_clicked()
 void LoginWindow::showAuthEdits()
 {
     ui->backButton->setEnabled(true);
+    ui->createDBButton->hide();
+    ui->openDBButton->hide();
     Animation::fadeOut(ui->createDBButton, 350);
     Animation::fadeOut(ui->openDBButton, 350);
     Animation::fadeIn(ui->masterKeyEdit, 350);
@@ -83,6 +86,8 @@ void LoginWindow::showAuthEdits()
 void LoginWindow::showStartup()
 {
     ui->backButton->setEnabled(false);
+    ui->createDBButton->show();
+    ui->openDBButton->show();
     Animation::fadeIn(ui->createDBButton, 350);
     Animation::fadeIn(ui->openDBButton, 350);
     Animation::fadeOut(ui->masterKeyEdit, 350);
