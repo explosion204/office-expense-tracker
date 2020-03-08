@@ -30,10 +30,7 @@ Department* Aggregator::getDepartment(int id)
     return nullptr;
 }
 
-std::vector<Department*> Aggregator::getDepartments()
-{
-    return departments_list;
-}
+std::vector<Department*> Aggregator::getDepartments() { return departments_list; }
 
 void Aggregator::addDepartment(int id, QString title)
 {

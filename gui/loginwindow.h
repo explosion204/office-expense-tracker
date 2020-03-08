@@ -5,9 +5,9 @@
 #include <QtSql>
 #include <QMessageBox>
 #include <QFileDialog>
-#include <mainwindow.h>
-#include <controlunit.h>
-#include <animation.h>
+#include <gui/mainwindow.h>
+#include <service/controlunit.h>
+#include <service/animation.h>
 
 namespace Ui {
 class LoginWindow;

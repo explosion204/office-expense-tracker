@@ -25,7 +25,8 @@ LoginWindow::~LoginWindow()
 
 void LoginWindow::on_loginButton_clicked()
 {
-    if (ControlUnit::getInstance()->authorize(db_path, ui->masterKeyEdit->text(), ui->usernameEdit->text(), ui->passwordEdit->text()))
+    ControlUnit::getInstance()->authorize(db_path, ui->masterKeyEdit->text(), ui->usernameEdit->text(), ui->passwordEdit->text());
+    if (ControlUnit::getInstance()->isAuthorized())
     {
         close();
         (new MainWindow())->show();

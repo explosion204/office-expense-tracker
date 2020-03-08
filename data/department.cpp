@@ -1,37 +1,28 @@
 #include "department.h"
 
-Department::Department(int id, QString title)
+Department::Department(int id, QString title, DataStatus status)
 {
     expense_list = std::vector<Expense*>();
     employee_list = std::vector<Employee*>();
     modified_employee_list = std::vector<Employee*>();
     this->title = title;
     this->id = id;
+    this->status = status;
 }
 
-std::vector<Expense*> Department::getExpenses()
-{
-    return expense_list;
-}
+std::vector<Expense*> Department::getExpenses() { return expense_list; }
 
-std::vector<Employee*> Department::getEmployees()
-{
-    return employee_list;
-}
+std::vector<Employee*> Department::getEmployees() { return employee_list; }
 
-QString Department::getTitle()
-{
-    return title;
-}
+QString Department::getTitle() { return title; }
 
-int Department::getId()
-{
-    return id;
-}
+int Department::getId() { return id; }
+
+DataStatus Department::getStatus() { return status; }
 
 void Department::addMember(int id, QString name, QString position, int seniority)
 {
-    Employee *employee = new Employee(id, name, position, seniority);
+    Employee *employee = new Employee(id, this->id, name, position, seniority);
     employee_list.push_back(employee);
 }
 
@@ -55,32 +46,14 @@ Employee* Department::getMember(int id)
 
 void Department::addExpense(int id, QString name, QString description, int limit, int value)
 {
-    Expense *new_expense = new Expense(id, name, description, limit, value);
+    Expense *new_expense = new Expense(id, this->id, name, description, limit, value);
     expense_list.push_back(new_expense);
 }
 
-void Department::setManager(int id)
+void Department::editExpense(int id, QString name, QString description, int limit, int value)
 {
-//    for (auto iter = employee_list.begin(); iter != employee_list.end(); iter++)
-//    {
-//        if (typeid(*iter) == typeid(Manager))
-//        {
-//            Employee *employee = new Employee(*(*iter));
-//            employee_list.erase(iter);
-//            employee_list.insert(iter, employee);
-//            break;
-//        }
-//    }
-//    for (auto iter = employee_list.begin(); iter != employee_list.end(); iter++)
-//    {
-//        if ((*iter)->getId() == id)
-//        {
-//            Manager *manager = new Manager(*(*iter));
-//            employee_list.erase(iter);
-//            employee_list.insert(iter, manager);
-//            break;
-//        }
-//    }
+    removeExpense(id);
+    addExpense(id, name, description, limit, value);
 }
 
 Expense* Department::getExpense(int id)
