@@ -23,7 +23,7 @@ private:
     bool authorized;
     Permission *permission;
     std::vector<Department*> departments_list_modified;
-    std::vector<Employee*> members_list_modified;
+//    std::vector<Employee*> members_list_modified;
     std::vector<Expense*> expenses_list_modified;
 public:
     static ControlUnit* getInstance();
@@ -36,13 +36,13 @@ public:
     void pullModifiedData();
     void pushModifiedData();
 
-    void addMember(int id, int department_id, QString name, QString position, int seniority);
+    //void addMember(int id, int department_id, QString name, QString position, int seniority);
     void addDepartment(int id, QString title);
     void addExpense(int id, int department_id, QString name, QString description, int limit, int value);
-    void removeMember(int id, int department_id);
+    //void removeMember(int id, int department_id);
     void removeDepartment(int id);
     void removeExpense(int id, int department_id);
-    void editMember(int id, int department_id, QString name, QString position, int seniority);
+    //void editMember(int id, int department_id, QString name, QString position, int seniority);
     void editDepartment(int id, QString title);
     void editExpense(int id, int department_id, QString name, QString description, int limit, int value);
 };

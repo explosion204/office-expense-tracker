@@ -98,21 +98,6 @@
            </property>
           </widget>
          </widget>
-         <widget class="QWidget" name="tab_5">
-          <attribute name="title">
-           <string>Expenses</string>
-          </attribute>
-          <widget class="QListView" name="listView">
-           <property name="geometry">
-            <rect>
-             <x>10</x>
-             <y>10</y>
-             <width>481</width>
-             <height>241</height>
-            </rect>
-           </property>
-          </widget>
-         </widget>
         </widget>
        </item>
        <item row="0" column="0">
@@ -176,28 +161,6 @@ p, li { white-space: pre-wrap; }
        </rect>
       </property>
       <layout class="QGridLayout" name="gridLayout_4">
-       <item row="0" column="0" rowspan="4">
-        <widget class="QTabWidget" name="tabWidget_3">
-         <property name="currentIndex">
-          <number>2</number>
-         </property>
-         <widget class="QWidget" name="tab_10">
-          <attribute name="title">
-           <string>Departments</string>
-          </attribute>
-         </widget>
-         <widget class="QWidget" name="tab_12">
-          <attribute name="title">
-           <string>Employees</string>
-          </attribute>
-         </widget>
-         <widget class="QWidget" name="tab_11">
-          <attribute name="title">
-           <string>Expenses</string>
-          </attribute>
-         </widget>
-        </widget>
-       </item>
        <item row="1" column="1">
         <widget class="QFrame" name="frame_2">
          <property name="frameShape">
@@ -247,6 +210,23 @@ p, li { white-space: pre-wrap; }
          <property name="frameShadow">
           <enum>QFrame::Raised</enum>
          </property>
+        </widget>
+       </item>
+       <item row="0" column="0" rowspan="4">
+        <widget class="QTabWidget" name="tabWidget_3">
+         <property name="currentIndex">
+          <number>1</number>
+         </property>
+         <widget class="QWidget" name="tab_10">
+          <attribute name="title">
+           <string>Departments</string>
+          </attribute>
+         </widget>
+         <widget class="QWidget" name="tab_11">
+          <attribute name="title">
+           <string>Expenses</string>
+          </attribute>
+         </widget>
         </widget>
        </item>
       </layout>
