@@ -31,7 +31,8 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                      "account_type text)");
     db->sendSqlQuery("create table Departments "
                      "(Id integer not null primary key unique, "
-                     "Title text not null)");
+                     "Title text not null, "
+                     "Members_count integer not null)");
 //    db->sendSqlQuery("create table Employees "
 //                     "(Id integer not null primary key unique, "
 //                     "Department_id integer not null unique, "
@@ -48,6 +49,7 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
     db->sendSqlQuery("create table Departments_modified "
                      "(Id integer not null primary key unique, "
                      "Title text not null, "
+                     "Members_count integer not null, "
                      "Status text not null)");
 //    db->sendSqlQuery("create table Employees_modified "
 //                     "(Id integer not null primary key unique, "
@@ -66,7 +68,6 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                      "Status text not null)");
     db->sendSqlQuery("insert into auth (user_id, username, password, account_type) values (0, \"" + username + "\", \"" + QString::fromStdString(pass_hash) + "\", "
                     "\"ADMIN\")");
-    db->close();
 }
 
 void ControlUnit::authorize(QString db_path, QString master_key, QString username, QString password)
@@ -105,12 +106,13 @@ Permission* ControlUnit::getPermission() { return permission; }
 
 void ControlUnit::pullValidatedData()
 {
-    QSqlQuery query = Database::getInstance()->sendSqlQuery("select Id, Title from Departments");
+    QSqlQuery query = Database::getInstance()->sendSqlQuery("select Id, Title, Members_count from Departments");
     while (query.next())
     {
         int id = query.value(0).toInt();
         QString title = query.value(1).toString();
-        Department *department = new Department(id, title);
+        int members_count = query.value(2).toInt();
+        Department *department = new Department(id, title, members_count);
         Aggregator::getInstance()->getDepartments().push_back(department);
     }
 //    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Position, Seniority from Employees");
@@ -146,7 +148,8 @@ void ControlUnit::pushValidatedData()
     {
         int department_id = department->getId();
         QString title = department->getTitle();
-        Database::getInstance()->sendSqlQuery("insert into Departments (Id, Title) values (" + QString(department_id) + ", " + title + ")");
+        int members_count = department->getMembersCount();
+        Database::getInstance()->sendSqlQuery("insert into Departments (Id, Title, Members_count) values (" + QString(department_id) + ", \"" + title + "\", " + QString(members_count) + ")");
 //        for (auto employee: department->getEmployees())
 //        {
 //            int id = employee->getId();
@@ -171,13 +174,14 @@ void ControlUnit::pushValidatedData()
 
 void ControlUnit::pullModifiedData()
 {
-    QSqlQuery query = Database::getInstance()->sendSqlQuery("select Id, Title, Status from Departments_modified");
+    QSqlQuery query = Database::getInstance()->sendSqlQuery("select Id, Title, Members_count, Status from Departments_modified");
     while (query.next())
     {
         int id = query.value(0).toInt();
         QString title = query.value(1).toString();
-        DataStatus status = DataStatusTools::stringToDataStatus(query.value(2).toString());
-        Department *department = new Department(id, title, status);
+        int members_count = query.value(2).toInt();
+        DataStatus status = DataStatusTools::stringToDataStatus(query.value(3).toString());
+        Department *department = new Department(id, title, members_count, status);
         departments_list_modified.push_back(department);
     }
 //    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Position, Seniority, Status from Employees");
@@ -213,9 +217,10 @@ void ControlUnit::pushModifiedData()
     {
         int department_id = department->getId();
         QString title = department->getTitle();
+        int members_count = department->getMembersCount();
         QString status = DataStatusTools::dataStatusToString(department->getStatus());
-        Database::getInstance()->sendSqlQuery("insert into Departments_modified (Id, Title, Status) values "
-                                              "(" + QString(department_id) + ", \"" + title + "\", \"" + status + "\")");
+        Database::getInstance()->sendSqlQuery("insert into Departments_modified (Id, Title, Members_count, Status) values "
+                                              "(" + QString(department_id) + ", \"" + title + "\", " + members_count + ", \"" + status + "\")");
     }
 //    for (auto employee: members_list_modified)
 //    {
@@ -330,28 +335,28 @@ void ControlUnit::removeExpense(int id, int department_id)
     }
 }
 
-void ControlUnit::addDepartment(int id, QString title)
+void ControlUnit::addDepartment(int id, QString title, int members_count)
 {
     if (permission->canModifyDataDirectly())
     {
-        Aggregator::getInstance()->addDepartment(id, title);
+        Aggregator::getInstance()->addDepartment(id, title, members_count);
     }
     else
     {
-        Department *department = new Department(id, title, CREATED);
+        Department *department = new Department(id, title, members_count, CREATED);
         departments_list_modified.push_back(department);
     }
 }
 
-void ControlUnit::editDepartment(int id, QString title)
+void ControlUnit::editDepartment(int id, QString title, int members_count)
 {
     if (permission->canModifyDataDirectly())
     {
-        Aggregator::getInstance()->editDepartment(id, title);
+        Aggregator::getInstance()->editDepartment(id, title, members_count);
     }
     else
     {
-        Department *department = new Department(id, title, MODIFIED);
+        Department *department = new Department(id, title, members_count, MODIFIED);
         departments_list_modified.push_back(department);
     }
 }
@@ -365,7 +370,7 @@ void ControlUnit::removeDepartment(int id)
     else
     {
         Department *dep_del = Aggregator::getInstance()->getDepartment(id);
-        Department *department = new Department(id, dep_del->getTitle(), DELETED);
+        Department *department = new Department(id, dep_del->getTitle(), dep_del->getMembersCount(), DELETED);
         departments_list_modified.push_back(department);
     }
 }

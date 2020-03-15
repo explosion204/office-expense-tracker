@@ -14,9 +14,9 @@ private:
 public:
     static Aggregator* getInstance();
     std::vector<Department*> getDepartments();
-    void addDepartment(int id, QString title);
+    void addDepartment(int id, QString title, int members_count);
     void removeDepartment(int id);
-    void editDepartment(int id, QString title);
+    void editDepartment(int id, QString title, int members_count);
     Department* getDepartment(int id);
 };
 

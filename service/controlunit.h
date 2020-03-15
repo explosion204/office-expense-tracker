@@ -37,13 +37,13 @@ public:
     void pushModifiedData();
 
     //void addMember(int id, int department_id, QString name, QString position, int seniority);
-    void addDepartment(int id, QString title);
+    void addDepartment(int id, QString title, int members_count);
     void addExpense(int id, int department_id, QString name, QString description, int limit, int value);
     //void removeMember(int id, int department_id);
     void removeDepartment(int id);
     void removeExpense(int id, int department_id);
     //void editMember(int id, int department_id, QString name, QString position, int seniority);
-    void editDepartment(int id, QString title);
+    void editDepartment(int id, QString title, int members_count);
     void editExpense(int id, int department_id, QString name, QString description, int limit, int value);
 };
 

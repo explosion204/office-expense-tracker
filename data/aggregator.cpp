@@ -14,10 +14,10 @@ Aggregator* Aggregator::getInstance()
     return instance;
 }
 
-void Aggregator::editDepartment(int id, QString title)
+void Aggregator::editDepartment(int id, QString title, int members_count)
 {
     removeDepartment(id);
-    addDepartment(id, title);
+    addDepartment(id, title, members_count);
 }
 
 Department* Aggregator::getDepartment(int id)
@@ -32,9 +32,9 @@ Department* Aggregator::getDepartment(int id)
 
 std::vector<Department*> Aggregator::getDepartments() { return departments_list; }
 
-void Aggregator::addDepartment(int id, QString title)
+void Aggregator::addDepartment(int id, QString title, int members_count)
 {
-    Department *new_department = new Department(id, title);
+    Department *new_department = new Department(id, title, members_count);
     departments_list.push_back(new_department);
 }
 
