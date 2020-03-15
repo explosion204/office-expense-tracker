@@ -5,6 +5,7 @@
 #include <QGridLayout>
 #include <service/controlunit.h>
 #include <gui/listwidgetitem.h>
+#include <gui/additemwidget.h>
 
 namespace Ui {
 class MainWindow;
@@ -25,6 +26,8 @@ private slots:
 private:
     Ui::MainWindow *ui;
     void initViews();
+    void showAddTab();
+    void showEditTab();
 };
 
 #endif // MAINWINDOW_H

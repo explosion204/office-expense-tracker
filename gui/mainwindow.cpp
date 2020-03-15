@@ -9,10 +9,12 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     ui->centralwidget->setLayout(new QGridLayout());
     ui->centralwidget->layout()->addWidget(ui->tabWidget);
+    ui->centralwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tabWidget->setTabEnabled(1, false);
     ui->tabWidget->setTabEnabled(3, false);
     //objects set up
     initViews();
+    showAddTab();
 }
 
 MainWindow::~MainWindow()
@@ -60,4 +62,11 @@ void MainWindow::on_expensesListWidget_currentRowChanged(int currentRow)
                                  "\nDescription: " + expense->getDescription() + "\nLimit value per month: " + QString::number(expense->getLimit()) + "\nCurrent value: " +
                                  QString::number(expense->getValue()));
     }
+}
+
+void MainWindow::showAddTab()
+{
+    AddItemWidget *widget = new AddItemWidget();
+    ui->leftBottomWidget->addTab(widget, "widget");
+
 }
