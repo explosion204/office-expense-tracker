@@ -8,11 +8,9 @@
 class Aggregator
 {
 private:
-    static Aggregator *instance;
     std::vector<Department*> departments_list;
-    Aggregator();
 public:
-    static Aggregator* getInstance();
+    Aggregator();
     std::vector<Department*> getDepartments();
     void addDepartment(int id, QString title, int members_count);
     void removeDepartment(int id);

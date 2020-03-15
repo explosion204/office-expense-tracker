@@ -1,17 +1,8 @@
 #include "aggregator.h"
 
-Aggregator* Aggregator::instance = nullptr;
-
 Aggregator::Aggregator()
 {
     departments_list = std::vector<Department*>();
-}
-
-Aggregator* Aggregator::getInstance()
-{
-    if (instance  == nullptr)
-        instance = new Aggregator();
-    return instance;
 }
 
 void Aggregator::editDepartment(int id, QString title, int members_count)

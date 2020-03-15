@@ -9,6 +9,7 @@ ControlUnit::ControlUnit()
 //    members_list_modified = std::vector<Employee*>();
     expenses_list_modified = std::vector<Expense*>();
     permission = nullptr;
+    aggregator = new Aggregator();
 }
 
 ControlUnit* ControlUnit::getInstance()
@@ -104,6 +105,11 @@ bool ControlUnit::isAuthorized() { return authorized; }
 
 Permission* ControlUnit::getPermission() { return permission; }
 
+Department* ControlUnit::getDepartment(int id)
+{
+    return aggregator->getDepartment(id);
+}
+
 void ControlUnit::pullValidatedData()
 {
     QSqlQuery query = Database::getInstance()->sendSqlQuery("select Id, Title, Members_count from Departments");
@@ -112,7 +118,7 @@ void ControlUnit::pullValidatedData()
         int id = query.value(0).toInt();
         QString title = query.value(1).toString();
         int members_count = query.value(2).toInt();
-        Aggregator::getInstance()->addDepartment(id, title, members_count);
+        aggregator->addDepartment(id, title, members_count);
     }
 //    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Position, Seniority from Employees");
 //    while (query.next())
@@ -135,7 +141,7 @@ void ControlUnit::pullValidatedData()
         QString description = query.value(3).toString();
         int limit = query.value(4).toInt();
         int value = query.value(5).toInt();
-        Department *department = Aggregator::getInstance()->getDepartment(department_id);
+        Department *department = aggregator->getDepartment(department_id);
         if (department != nullptr)
             department->addExpense(id, name, description, limit, value);
     }
@@ -143,7 +149,7 @@ void ControlUnit::pullValidatedData()
 
 void ControlUnit::pushValidatedData()
 {
-    for (auto department: Aggregator::getInstance()->getDepartments())
+    for (auto department: aggregator->getDepartments())
     {
         int department_id = department->getId();
         QString title = department->getTitle();
@@ -294,7 +300,7 @@ void ControlUnit::addExpense(int id, int department_id, QString name, QString de
 {
     if (permission->canModifyDataDirectly())
     {
-        Department *department = Aggregator::getInstance()->getDepartment(department_id);
+        Department *department = aggregator->getDepartment(department_id);
         department->addExpense(id, name, description, limit, value);
     }
     else
@@ -308,7 +314,7 @@ void ControlUnit::editExpense(int id, int department_id, QString name, QString d
 {
     if (permission->canModifyDataDirectly())
     {
-        Department *department = Aggregator::getInstance()->getDepartment(department_id);
+        Department *department = aggregator->getDepartment(department_id);
         department->editExpense(id, name, description, limit, value);
     }
     else
@@ -322,12 +328,12 @@ void ControlUnit::removeExpense(int id, int department_id)
 {
     if (permission->canModifyDataDirectly())
     {
-        Department *department = Aggregator::getInstance()->getDepartment(department_id);
+        Department *department = aggregator->getDepartment(department_id);
         department->removeExpense(id);
     }
     else
     {
-        Expense *exp_del = Aggregator::getInstance()->getDepartment(department_id)->getExpense(id);
+        Expense *exp_del = aggregator->getDepartment(department_id)->getExpense(id);
         Expense *expense = new Expense(id, department_id, exp_del->getName(), exp_del->getDescription(),
                                        exp_del->getLimit(), exp_del->getValue(), DELETED);
         expenses_list_modified.push_back(expense);
@@ -338,7 +344,7 @@ void ControlUnit::addDepartment(int id, QString title, int members_count)
 {
     if (permission->canModifyDataDirectly())
     {
-        Aggregator::getInstance()->addDepartment(id, title, members_count);
+        aggregator->addDepartment(id, title, members_count);
     }
     else
     {
@@ -351,7 +357,7 @@ void ControlUnit::editDepartment(int id, QString title, int members_count)
 {
     if (permission->canModifyDataDirectly())
     {
-        Aggregator::getInstance()->editDepartment(id, title, members_count);
+        aggregator->editDepartment(id, title, members_count);
     }
     else
     {
@@ -364,7 +370,7 @@ void ControlUnit::removeDepartment(int id)
 {
     if (permission->canModifyDataDirectly())
     {
-        Aggregator::getInstance()->removeDepartment(id);
+        aggregator->removeDepartment(id);
     }
     else
     {

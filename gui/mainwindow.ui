@@ -111,21 +111,21 @@
         <item row="1" column="1">
          <layout class="QHBoxLayout" name="horizontalLayout_9">
           <item>
-           <widget class="QPushButton" name="pushButton_7">
+           <widget class="QPushButton" name="addExpenseButton">
             <property name="text">
              <string>Add</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_8">
+           <widget class="QPushButton" name="editExpenseButton">
             <property name="text">
              <string>Edit</string>
             </property>
            </widget>
           </item>
           <item>
-           <widget class="QPushButton" name="pushButton_9">
+           <widget class="QPushButton" name="removeExpenseButton">
             <property name="text">
              <string>Remove</string>
             </property>
@@ -182,21 +182,21 @@
           <item>
            <layout class="QHBoxLayout" name="horizontalLayout_7">
             <item>
-             <widget class="QPushButton" name="pushButton">
+             <widget class="QPushButton" name="addDepartmentButton">
               <property name="text">
                <string>Add</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_3">
+             <widget class="QPushButton" name="editDepartmentButton">
               <property name="text">
                <string>Edit</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="pushButton_2">
+             <widget class="QPushButton" name="removeDepartmentButton">
               <property name="text">
                <string>Remove</string>
               </property>
