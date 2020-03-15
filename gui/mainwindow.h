@@ -19,9 +19,8 @@ public:
     ~MainWindow();
 
 private slots:
-    void on_departmentsListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
-
-    void on_expensesListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous);
+    void on_departmentsListWidget_currentRowChanged(int currentRow);
+    void on_expensesListWidget_currentRowChanged(int currentRow);
 
 private:
     Ui::MainWindow *ui;

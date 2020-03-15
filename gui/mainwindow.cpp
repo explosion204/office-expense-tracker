@@ -23,7 +23,6 @@ MainWindow::~MainWindow()
 void MainWindow::initViews()
 {
     ControlUnit::getInstance()->pullValidatedData();
-    ControlUnit::getInstance()->pullValidatedData();
     for (auto department: Aggregator::getInstance()->getDepartments())
     {
         ListWidgetItem *dep_item = new ListWidgetItem(department->getId(), department->getTitle());
@@ -31,36 +30,34 @@ void MainWindow::initViews()
     }
 }
 
-void MainWindow::on_departmentsListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+void MainWindow::on_departmentsListWidget_currentRowChanged(int currentRow)
 {
-    ui->departmentInfo->clear();
-    int item_id = dynamic_cast<ListWidgetItem*>(current)->getItemId();
-    Department *department = Aggregator::getInstance()->getDepartment(item_id);
-    QString title = department->getTitle();
-    int members_count = department->getMembersCount();
-    ui->departmentInfo->setText("Title: " + title + "\nID: " + QString(item_id) + "\nMembers count: " + QString(members_count));
-    ui->expensesListWidget->clear();
-    for (auto expense: department->getExpenses())
+    if (currentRow != -1)
     {
-        ListWidgetItem *exp_item = new ListWidgetItem(expense->getId(), expense->getName());
-        ui->expensesListWidget->addItem(exp_item);
+        ui->departmentInfo->clear();
+        int item_id = dynamic_cast<ListWidgetItem*>(ui->departmentsListWidget->item(currentRow))->getItemId();
+        Department *department = Aggregator::getInstance()->getDepartment(item_id);
+        QString title = department->getTitle();
+        int members_count = department->getMembersCount();
+        ui->departmentInfo->setText("Title: " + title + "\nID: " + QString::number(item_id) + "\nMembers count: " + QString::number(members_count));
+        ui->expensesListWidget->clear();
+        for (auto expense: department->getExpenses())
+        {
+            ListWidgetItem *exp_item = new ListWidgetItem(expense->getId(), expense->getName());
+            ui->expensesListWidget->addItem(exp_item);
+        }
     }
 }
 
-void MainWindow::on_expensesListWidget_currentItemChanged(QListWidgetItem *current, QListWidgetItem *previous)
+void MainWindow::on_expensesListWidget_currentRowChanged(int currentRow)
 {
-    int item_id = dynamic_cast<ListWidgetItem*>(current)->getItemId();
-    int department_id = dynamic_cast<ListWidgetItem*>(ui->departmentsListWidget->currentItem())->getItemId();
-    Expense *expense = Aggregator::getInstance()->getDepartment(department_id)->getExpense(item_id);
-    /*
-     * Name:
-     * ID:
-     * Department ID:
-     * Description:
-     * Limit value per month:
-     * Current value:
-    */
-    ui->expenseInfo->setText("Name: " + expense->getName() + "\nID: " + QString(expense->getId()) + "\nDepartment ID: " + QString(expense->getDepartmentId()) +
-                             "\nDescription: " + expense->getDescription() + "\nLimit value per month: " + QString(expense->getLimit()) + "\nCurrent value: " +
-                             QString(expense->getValue()));
+    if (currentRow != -1)
+    {
+        int item_id = dynamic_cast<ListWidgetItem*>(ui->expensesListWidget->item(currentRow))->getItemId();
+        int department_id = dynamic_cast<ListWidgetItem*>(ui->departmentsListWidget->currentItem())->getItemId();
+        Expense *expense = Aggregator::getInstance()->getDepartment(department_id)->getExpense(item_id);
+        ui->expenseInfo->setText("Name: " + expense->getName() + "\nID: " + QString::number(expense->getId()) + "\nDepartment ID: " + QString::number(expense->getDepartmentId()) +
+                                 "\nDescription: " + expense->getDescription() + "\nLimit value per month: " + QString::number(expense->getLimit()) + "\nCurrent value: " +
+                                 QString::number(expense->getValue()));
+    }
 }

@@ -112,8 +112,7 @@ void ControlUnit::pullValidatedData()
         int id = query.value(0).toInt();
         QString title = query.value(1).toString();
         int members_count = query.value(2).toInt();
-        Department *department = new Department(id, title, members_count);
-        Aggregator::getInstance()->getDepartments().push_back(department);
+        Aggregator::getInstance()->addDepartment(id, title, members_count);
     }
 //    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Position, Seniority from Employees");
 //    while (query.next())
@@ -149,7 +148,7 @@ void ControlUnit::pushValidatedData()
         int department_id = department->getId();
         QString title = department->getTitle();
         int members_count = department->getMembersCount();
-        Database::getInstance()->sendSqlQuery("insert into Departments (Id, Title, Members_count) values (" + QString(department_id) + ", \"" + title + "\", " + QString(members_count) + ")");
+        Database::getInstance()->sendSqlQuery("insert into Departments (Id, Title, Members_count) values (" + QString::number(department_id) + ", \"" + title + "\", " + QString::number(members_count) + ")");
 //        for (auto employee: department->getEmployees())
 //        {
 //            int id = employee->getId();
@@ -166,8 +165,8 @@ void ControlUnit::pushValidatedData()
             QString description = expense->getDescription();
             int limit = expense->getLimit();
             int value = expense->getValue();
-            Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value) values (" + QString(id) + ", "
-                            + QString(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString(limit) + ", " + QString(value) + ")");
+            Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value) values (" + QString::number(id) + ", "
+                            + QString::number(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString::number(limit) + ", " + QString::number(value) + ")");
         }
     }
 }
@@ -220,7 +219,7 @@ void ControlUnit::pushModifiedData()
         int members_count = department->getMembersCount();
         QString status = DataStatusTools::dataStatusToString(department->getStatus());
         Database::getInstance()->sendSqlQuery("insert into Departments_modified (Id, Title, Members_count, Status) values "
-                                              "(" + QString(department_id) + ", \"" + title + "\", " + members_count + ", \"" + status + "\")");
+                                              "(" + QString::number(department_id) + ", \"" + title + "\", " + QString::number(members_count) + ", \"" + status + "\")");
     }
 //    for (auto employee: members_list_modified)
 //    {
@@ -242,8 +241,8 @@ void ControlUnit::pushModifiedData()
         int limit = expense->getLimit();
         int value = expense->getValue();
         QString status = DataStatusTools::dataStatusToString(expense->getStatus());
-        Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value, Status) values (" + QString(id) + ", "
-                        + QString(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString(limit) + ", " + QString(value) + ", \"" + status + "\")");
+        Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value, Status) values (" + QString::number(id) + ", "
+                        + QString::number(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString::number(limit) + ", " + QString::number(value) + ", \"" + status + "\")");
     }
 }
 
