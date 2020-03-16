@@ -6,6 +6,7 @@ DepartmentWidget::DepartmentWidget(WidgetPurpose widget_purpose, int id, QWidget
     ui(new Ui::DepartmentWidget)
 {
     ui->setupUi(this);
+    this->purpose = widget_purpose;
     switch (widget_purpose)
     {
         case ADD:
@@ -27,3 +28,23 @@ DepartmentWidget::~DepartmentWidget()
 {
     delete ui;
 }
+
+void DepartmentWidget::on_pushButton_clicked()
+{
+    QString id = ui->idEdit->text();
+    QString title = ui->titleEdit->text();
+    QString members_count = ui->membersCountEdit->text();
+    if (!id.isEmpty() && !title.isEmpty() && !members_count.isEmpty())
+    {
+        switch (purpose)
+        {
+            case ADD:
+                ControlUnit::getInstance()->addDepartment(id.toInt(), title, members_count.toInt());
+                break;
+            case EDIT:
+                ControlUnit::getInstance()->editDepartment(id.toInt(), title, members_count.toInt());
+                break;
+        }
+    }
+}
+

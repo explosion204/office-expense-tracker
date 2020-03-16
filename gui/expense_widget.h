@@ -17,9 +17,12 @@ public:
     explicit ExpenseWidget(WidgetPurpose widget_purpose, int id, int department_id, QWidget *parent = nullptr);
     ~ExpenseWidget();
 
+private slots:
+    void on_pushButton_clicked();
+
 private:
     Ui::ExpenseWidget *ui;
-    Expense *expense;
+    WidgetPurpose purpose;
 };
 
 #endif // EXPENSE_WIDGET_H

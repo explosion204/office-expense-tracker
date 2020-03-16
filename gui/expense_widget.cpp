@@ -6,6 +6,7 @@ ExpenseWidget::ExpenseWidget(WidgetPurpose widget_purpose, int expense_id, int d
     ui(new Ui::ExpenseWidget)
 {
     ui->setupUi(this);
+    this->purpose = widget_purpose;
     switch (widget_purpose)
     {
         case ADD:
@@ -29,4 +30,26 @@ ExpenseWidget::ExpenseWidget(WidgetPurpose widget_purpose, int expense_id, int d
 ExpenseWidget::~ExpenseWidget()
 {
     delete ui;
+}
+
+void ExpenseWidget::on_pushButton_clicked()
+{
+    QString expense_id = ui->expenseIdEdit->text();
+    QString department_id = ui->expenseIdEdit->text();
+    QString name = ui->nameEdit->text();
+    QString description = ui->descriptionEdit->text();
+    QString value = ui->valueEdit->text();
+    QString limit = ui->limitEdit->text();
+    if (!expense_id.isEmpty() && !department_id.isEmpty() && !name.isEmpty() && !description.isEmpty() && !value.isEmpty() && !limit.isEmpty())
+    {
+        switch (purpose)
+        {
+            case ADD:
+                ControlUnit::getInstance()->addExpense(expense_id.toInt(), department_id.toInt(), name, description, value.toInt(), limit.toInt());
+                break;
+            case EDIT:
+                ControlUnit::getInstance()->editExpense(expense_id.toInt(), department_id.toInt(), name, description, value.toInt(), limit.toInt());
+                break;
+        }
+    }
 }
