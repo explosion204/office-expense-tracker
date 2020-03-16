@@ -37,7 +37,10 @@ public:
     void pullModifiedData();
     void pushModifiedData();
 
-    Department* getDepartment(int id);
+    std::tuple<QString, int> getDepartment(int id);
+    std::tuple<QString, QString, int, int> getExpense(int expense_id, int department_id);
+    std::vector<int> getDepartments();
+    std::vector<int> getExpenses(int department_id);
     //void addMember(int id, int department_id, QString name, QString position, int seniority);
     void addDepartment(int id, QString title, int members_count);
     void addExpense(int id, int department_id, QString name, QString description, int limit, int value);

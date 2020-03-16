@@ -105,9 +105,37 @@ bool ControlUnit::isAuthorized() { return authorized; }
 
 Permission* ControlUnit::getPermission() { return permission; }
 
-Department* ControlUnit::getDepartment(int id)
+std::tuple<QString, int> ControlUnit::getDepartment(int id)
 {
-    return aggregator->getDepartment(id);
+    Department *department = aggregator->getDepartment(id);
+    return std::make_tuple(department->getTitle(), department->getMembersCount());
+}
+
+std::tuple<QString, QString, int, int> ControlUnit::getExpense(int expense_id, int department_id)
+{
+    Expense *expense = aggregator->getDepartment(department_id)->getExpense(expense_id);
+    return std::make_tuple(expense->getName(), expense->getDescription(), expense->getValue(), expense->getLimit());
+}
+
+std::vector<int> ControlUnit::getDepartments()
+{
+    std::vector<int> department_ids = std::vector<int>();
+    for (Department *department : aggregator->getDepartments())
+    {
+        department_ids.push_back(department->getId());
+    }
+    return department_ids;
+}
+
+std::vector<int> ControlUnit::getExpenses(int department_id)
+{
+    std::vector<int> expense_ids = std::vector<int>();
+    Department *department = aggregator->getDepartment(department_id);
+    for (Expense *expense : department->getExpenses())
+    {
+        expense_ids.push_back(expense->getId());
+    }
+    return expense_ids;
 }
 
 void ControlUnit::pullValidatedData()
@@ -374,7 +402,7 @@ void ControlUnit::removeDepartment(int id)
     }
     else
     {
-        Department *dep_del = Aggregator::getInstance()->getDepartment(id);
+        Department *dep_del = aggregator->getDepartment(id);
         Department *department = new Department(id, dep_del->getTitle(), dep_del->getMembersCount(), DELETED);
         departments_list_modified.push_back(department);
     }

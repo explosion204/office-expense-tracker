@@ -2,7 +2,7 @@
 #define EXPENSE_WIDGET_H
 
 #include <QWidget>
-#include <data/expense.h>
+#include <service/controlunit.h>
 #include <gui/widget_purpose.h>
 
 namespace Ui {
@@ -14,7 +14,7 @@ class ExpenseWidget : public QWidget
     Q_OBJECT
 
 public:
-    explicit ExpenseWidget(WidgetPurpose widget_purpose, Expense *expense, QWidget *parent = nullptr);
+    explicit ExpenseWidget(WidgetPurpose widget_purpose, int id, int department_id, QWidget *parent = nullptr);
     ~ExpenseWidget();
 
 private:

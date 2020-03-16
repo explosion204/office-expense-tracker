@@ -4,8 +4,9 @@
 #include <QMainWindow>
 #include <QGridLayout>
 #include <service/controlunit.h>
-#include <gui/listwidgetitem.h>
+#include <gui/department_item.h>
 #include <gui/department_widget.h>
+#include <gui/expense_item.h>
 #include <gui/expense_widget.h>
 #include <gui/widget_purpose.h>
 
