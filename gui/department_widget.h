@@ -17,12 +17,18 @@ public:
     explicit DepartmentWidget(WidgetPurpose widget_purpose, int id, QWidget *parent = nullptr);
     ~DepartmentWidget();
 
+signals:
+    void updateListWidget();
+
 private slots:
     void on_pushButton_clicked();
+
+    void on_cancelButton_clicked();
 
 private:
     Ui::DepartmentWidget *ui;
     WidgetPurpose purpose;
+
 };
 
 #endif // DEPARTMENT_WIDGET_H

@@ -125,6 +125,23 @@ void MainWindow::hideEditExpenseTab()
     expense_edit_tab_opened = false;
 }
 
+void MainWindow::updateDepartmentsListWidget()
+{
+    int ui_items_count = ui->departmentsListWidget->count();
+    int aggregator_items_count = ControlUnit::getInstance()->getDepartments().size();
+    if (ui_items_count < aggregator_items_count)
+    {
+        auto departments = ControlUnit::getInstance()->getDepartments();
+        auto department = ControlUnit::getInstance()->getDepartment(departments.back());
+        DepartmentItem *dep_item = new DepartmentItem(departments.back(), std::get<0>(department));
+        ui->departmentsListWidget->addItem(dep_item);
+    }
+    else
+    {
+
+    }
+}
+
 void MainWindow::on_addDepartmentButton_clicked()
 {
     auto item = ui->departmentsListWidget->currentItem();
@@ -132,6 +149,7 @@ void MainWindow::on_addDepartmentButton_clicked()
     {
         int department_id = dynamic_cast<DepartmentItem*>(item)->getId();
         DepartmentWidget *widget = new DepartmentWidget(WidgetPurpose::ADD, department_id, this);
+        connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateDepartmentsListWidget);
         showAddDepartmentTab(widget);
     }
 }
@@ -143,6 +161,7 @@ void MainWindow::on_editDepartmentButton_clicked()
     {
         int department_id = dynamic_cast<DepartmentItem*>(item)->getId();
         DepartmentWidget *widget = new DepartmentWidget(WidgetPurpose::EDIT, department_id, this);
+        connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateDepartmentsListWidget);
         showEditDepartmentTab(widget);
     }
 }
@@ -161,6 +180,7 @@ void MainWindow::on_addExpenseButton_clicked()
         int expense_id = dynamic_cast<ExpenseItem*>(expense_item)->getId();
         int department_id = dynamic_cast<DepartmentItem*>(department_item)->getId();
         ExpenseWidget *widget = new ExpenseWidget(WidgetPurpose::ADD, expense_id, department_id, this);
+        connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateExpensesListWidget);
         showAddExpenseTab(widget);
     }
 }
@@ -174,6 +194,7 @@ void MainWindow::on_editExpenseButton_clicked()
         int expense_id = dynamic_cast<ExpenseItem*>(expense_item)->getId();
         int department_id = dynamic_cast<DepartmentItem*>(department_item)->getId();
         ExpenseWidget *widget = new ExpenseWidget(WidgetPurpose::EDIT, expense_id, department_id, this);
+        connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateExpensesListWidget);
         showEditExpenseTab(widget);
     }
 }

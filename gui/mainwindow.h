@@ -25,17 +25,11 @@ public:
 private slots:
     void on_departmentsListWidget_currentRowChanged(int currentRow);
     void on_expensesListWidget_currentRowChanged(int currentRow);
-
     void on_addDepartmentButton_clicked();
-
     void on_editDepartmentButton_clicked();
-
     void on_removeDepartmentButton_clicked();
-
     void on_addExpenseButton_clicked();
-
     void on_editExpenseButton_clicked();
-
     void on_removeExpenseButton_clicked();
 
 private:
@@ -54,6 +48,9 @@ private:
     void hideAddExpenseTab();
     void hideEditDepartmentTab();
     void hideEditExpenseTab();
+
+    void updateDepartmentsListWidget();
+    void updateExpensesListWidget();
 };
 
 #endif // MAINWINDOW_H

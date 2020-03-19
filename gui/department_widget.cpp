@@ -45,6 +45,12 @@ void DepartmentWidget::on_pushButton_clicked()
                 ControlUnit::getInstance()->editDepartment(id.toInt(), title, members_count.toInt());
                 break;
         }
+        updateListWidget();
     }
 }
 
+
+void DepartmentWidget::on_cancelButton_clicked()
+{
+
+}

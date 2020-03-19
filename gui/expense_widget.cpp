@@ -51,5 +51,6 @@ void ExpenseWidget::on_pushButton_clicked()
                 ControlUnit::getInstance()->editExpense(expense_id.toInt(), department_id.toInt(), name, description, value.toInt(), limit.toInt());
                 break;
         }
+        updateListWidget();
     }
 }

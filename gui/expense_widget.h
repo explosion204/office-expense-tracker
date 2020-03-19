@@ -17,6 +17,9 @@ public:
     explicit ExpenseWidget(WidgetPurpose widget_purpose, int id, int department_id, QWidget *parent = nullptr);
     ~ExpenseWidget();
 
+signals:
+    void updateListWidget();
+
 private slots:
     void on_pushButton_clicked();
 
