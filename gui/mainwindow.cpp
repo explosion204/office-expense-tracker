@@ -71,6 +71,7 @@ void MainWindow::showAddDepartmentTab(DepartmentWidget *widget)
     {
         ui->leftBottomWidget->addTab(widget, "Add");
         department_add_tab_opened = true;
+        ui->departmentsListWidget->setEnabled(false);
     }
 }
 
@@ -78,6 +79,7 @@ void MainWindow::hideAddDepartmentTab()
 {
     ui->leftBottomWidget->removeTab(1);
     department_add_tab_opened = false;
+    ui->departmentsListWidget->setEnabled(true);
 }
 
 void MainWindow::showEditDepartmentTab(DepartmentWidget *widget)
@@ -86,6 +88,7 @@ void MainWindow::showEditDepartmentTab(DepartmentWidget *widget)
     {
         ui->leftBottomWidget->addTab(widget, "Edit");
         department_edit_tab_opened = true;
+        ui->departmentsListWidget->setEnabled(false);
     }
 }
 
@@ -93,6 +96,7 @@ void MainWindow::hideEditDepartmentTab()
 {
     ui->leftBottomWidget->removeTab(1);
     department_edit_tab_opened = false;
+    ui->departmentsListWidget->setEnabled(true);
 }
 
 void MainWindow::showAddExpenseTab(ExpenseWidget *widget)
@@ -101,6 +105,7 @@ void MainWindow::showAddExpenseTab(ExpenseWidget *widget)
     {
         ui->rightBottomWidget->addTab(widget, "Add");
         expense_add_tab_opened = true;
+        ui->expensesListWidget->setEnabled(false);
     }
 }
 
@@ -108,6 +113,7 @@ void MainWindow::hideAddExpenseTab()
 {
     ui->rightBottomWidget->removeTab(1);
     expense_add_tab_opened = false;
+    ui->expensesListWidget->setEnabled(true);
 }
 
 void MainWindow::showEditExpenseTab(ExpenseWidget *widget)
@@ -116,6 +122,7 @@ void MainWindow::showEditExpenseTab(ExpenseWidget *widget)
     {
         ui->rightBottomWidget->addTab(widget, "Edit");
         expense_edit_tab_opened = true;
+        ui->expensesListWidget->setEnabled(false);
     }
 }
 
@@ -123,23 +130,7 @@ void MainWindow::hideEditExpenseTab()
 {
     ui->rightBottomWidget->removeTab(1);
     expense_edit_tab_opened = false;
-}
-
-void MainWindow::updateDepartmentsListWidget()
-{
-    int ui_items_count = ui->departmentsListWidget->count();
-    int aggregator_items_count = ControlUnit::getInstance()->getDepartments().size();
-    if (ui_items_count < aggregator_items_count)
-    {
-        auto departments = ControlUnit::getInstance()->getDepartments();
-        auto department = ControlUnit::getInstance()->getDepartment(departments.back());
-        DepartmentItem *dep_item = new DepartmentItem(departments.back(), std::get<0>(department));
-        ui->departmentsListWidget->addItem(dep_item);
-    }
-    else
-    {
-
-    }
+    ui->expensesListWidget->setEnabled(true);
 }
 
 void MainWindow::on_addDepartmentButton_clicked()
@@ -200,6 +191,28 @@ void MainWindow::on_editExpenseButton_clicked()
 }
 
 void MainWindow::on_removeExpenseButton_clicked()
+{
+
+}
+
+void MainWindow::updateDepartmentsListWidget()
+{
+    int ui_items_count = ui->departmentsListWidget->count();
+    int aggregator_items_count = ControlUnit::getInstance()->getDepartments().size();
+    if (ui_items_count < aggregator_items_count)
+    {
+        auto departments = ControlUnit::getInstance()->getDepartments();
+        auto department = ControlUnit::getInstance()->getDepartment(departments.back());
+        DepartmentItem *dep_item = new DepartmentItem(departments.back(), std::get<0>(department));
+        ui->departmentsListWidget->addItem(dep_item);
+    }
+    else
+    {
+
+    }
+}
+
+void MainWindow::updateExpensesListWidget()
 {
 
 }
