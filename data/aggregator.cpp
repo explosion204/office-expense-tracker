@@ -7,8 +7,9 @@ Aggregator::Aggregator()
 
 void Aggregator::editDepartment(int id, QString title, int members_count)
 {
-    removeDepartment(id);
-    addDepartment(id, title, members_count);
+    Department *department = getDepartment(id);
+    department->setTitle(title);
+    department->setMembersCount(members_count);
 }
 
 Department* Aggregator::getDepartment(int id)

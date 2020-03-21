@@ -65,13 +65,45 @@ void MainWindow::on_expensesListWidget_currentRowChanged(int currentRow)
     }
 }
 
+void MainWindow::enableControls()
+{
+    ui->departmentsListWidget->setEnabled(true);
+    ui->addDepartmentButton->setEnabled(true);
+    ui->editDepartmentButton->setEnabled(true);
+    ui->removeDepartmentButton->setEnabled(true);
+    ui->expensesListWidget->setEnabled(true);
+    ui->addExpenseButton->setEnabled(true);
+    ui->editExpenseButton->setEnabled(true);
+    ui->removeExpenseButton->setEnabled(true);
+}
+
+void MainWindow::disableControls()
+{
+    ui->departmentsListWidget->setEnabled(false);
+    ui->addDepartmentButton->setEnabled(false);
+    ui->editDepartmentButton->setEnabled(false);
+    ui->removeDepartmentButton->setEnabled(false);
+    ui->expensesListWidget->setEnabled(false);
+    ui->addExpenseButton->setEnabled(false);
+    ui->editExpenseButton->setEnabled(false);
+    ui->removeExpenseButton->setEnabled(false);
+}
+
+void MainWindow::hideAllAddEditTabs()
+{
+    hideAddDepartmentTab();
+    hideAddExpenseTab();
+    hideEditDepartmentTab();
+    hideEditExpenseTab();
+}
+
 void MainWindow::showAddDepartmentTab(DepartmentWidget *widget)
 {
     if (!department_add_tab_opened && !department_edit_tab_opened)
     {
         ui->leftBottomWidget->addTab(widget, "Add");
         department_add_tab_opened = true;
-        ui->departmentsListWidget->setEnabled(false);
+        disableControls();
     }
 }
 
@@ -79,7 +111,7 @@ void MainWindow::hideAddDepartmentTab()
 {
     ui->leftBottomWidget->removeTab(1);
     department_add_tab_opened = false;
-    ui->departmentsListWidget->setEnabled(true);
+    enableControls();
 }
 
 void MainWindow::showEditDepartmentTab(DepartmentWidget *widget)
@@ -88,7 +120,7 @@ void MainWindow::showEditDepartmentTab(DepartmentWidget *widget)
     {
         ui->leftBottomWidget->addTab(widget, "Edit");
         department_edit_tab_opened = true;
-        ui->departmentsListWidget->setEnabled(false);
+        disableControls();
     }
 }
 
@@ -96,7 +128,7 @@ void MainWindow::hideEditDepartmentTab()
 {
     ui->leftBottomWidget->removeTab(1);
     department_edit_tab_opened = false;
-    ui->departmentsListWidget->setEnabled(true);
+    enableControls();
 }
 
 void MainWindow::showAddExpenseTab(ExpenseWidget *widget)
@@ -105,7 +137,7 @@ void MainWindow::showAddExpenseTab(ExpenseWidget *widget)
     {
         ui->rightBottomWidget->addTab(widget, "Add");
         expense_add_tab_opened = true;
-        ui->expensesListWidget->setEnabled(false);
+        disableControls();
     }
 }
 
@@ -113,7 +145,7 @@ void MainWindow::hideAddExpenseTab()
 {
     ui->rightBottomWidget->removeTab(1);
     expense_add_tab_opened = false;
-    ui->expensesListWidget->setEnabled(true);
+    enableControls();
 }
 
 void MainWindow::showEditExpenseTab(ExpenseWidget *widget)
@@ -122,7 +154,7 @@ void MainWindow::showEditExpenseTab(ExpenseWidget *widget)
     {
         ui->rightBottomWidget->addTab(widget, "Edit");
         expense_edit_tab_opened = true;
-        ui->expensesListWidget->setEnabled(false);
+        disableControls();
     }
 }
 
@@ -130,13 +162,14 @@ void MainWindow::hideEditExpenseTab()
 {
     ui->rightBottomWidget->removeTab(1);
     expense_edit_tab_opened = false;
-    ui->expensesListWidget->setEnabled(true);
+    enableControls();
 }
 
 void MainWindow::on_addDepartmentButton_clicked()
 {
     DepartmentWidget *widget = new DepartmentWidget(WidgetPurpose::ADD, -1, this);
     connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateDepartmentsListWidget);
+    connect(widget, &DepartmentWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
     showAddDepartmentTab(widget);
 }
 
@@ -148,6 +181,7 @@ void MainWindow::on_editDepartmentButton_clicked()
         int department_id = dynamic_cast<DepartmentItem*>(item)->getId();
         DepartmentWidget *widget = new DepartmentWidget(WidgetPurpose::EDIT, department_id, this);
         connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateDepartmentsListWidget);
+        connect(widget, &DepartmentWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
         showEditDepartmentTab(widget);
     }
 }
@@ -158,7 +192,6 @@ void MainWindow::on_removeDepartmentButton_clicked()
     {
         int department_id = dynamic_cast<DepartmentItem*>(ui->departmentsListWidget->currentItem())->getId();
         ControlUnit::getInstance()->removeDepartment(department_id);
-        //ui->departmentsListWidget->takeItem(ui->departmentsListWidget->currentRow());
         updateDepartmentsListWidget();
     }
 }
@@ -171,6 +204,7 @@ void MainWindow::on_addExpenseButton_clicked()
         int department_id = dynamic_cast<DepartmentItem*>(department_item)->getId();
         ExpenseWidget *widget = new ExpenseWidget(WidgetPurpose::ADD, -1, department_id, this);
         connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateExpensesListWidget);
+        connect(widget, &ExpenseWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
         showAddExpenseTab(widget);
     }
 }
@@ -184,6 +218,8 @@ void MainWindow::on_editExpenseButton_clicked()
         int expense_id = dynamic_cast<ExpenseItem*>(expense_item)->getId();
         int department_id = dynamic_cast<DepartmentItem*>(department_item)->getId();
         ExpenseWidget *widget = new ExpenseWidget(WidgetPurpose::EDIT, expense_id, department_id, this);
+        connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateExpensesListWidget);
+        connect(widget, &ExpenseWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
         showEditExpenseTab(widget);
     }
 }
@@ -210,11 +246,28 @@ void MainWindow::updateDepartmentsListWidget()
         DepartmentItem *dep_item = new DepartmentItem(departments.back(), std::get<0>(department));
         ui->departmentsListWidget->addItem(dep_item);
     }
-    if (ui_items_count > aggregator_items_count)
+    else if (ui_items_count > aggregator_items_count)
     {
         ui->departmentsListWidget->takeItem(ui->departmentsListWidget->currentRow());
     }
+    else
+    {
+        int recent_department_id = ControlUnit::getInstance()->getRecentDepartmentId();
+        for (int i = 0; i < ui->departmentsListWidget->count(); i++)
+        {
+            auto *dep_item = dynamic_cast<DepartmentItem*>(ui->departmentsListWidget->item(i));
+            if (dep_item->getId() == recent_department_id)
+            {
+                ui->departmentsListWidget->takeItem(i);
+                auto department = ControlUnit::getInstance()->getDepartment(recent_department_id);
+                DepartmentItem *new_dep_item = new DepartmentItem(recent_department_id, std::get<0>(department));
+                ui->departmentsListWidget->insertItem(i, new_dep_item);
+                break;
+            }
+        }
+    }
     hideAddDepartmentTab();
+    hideEditDepartmentTab();
 }
 
 void MainWindow::updateExpensesListWidget()
@@ -232,10 +285,27 @@ void MainWindow::updateExpensesListWidget()
             ExpenseItem *exp_item = new ExpenseItem(expenses.back(), std::get<0>(expense));
             ui->expensesListWidget->addItem(exp_item);
         }
-        if (ui_items_count > aggregator_items_count)
+        else if (ui_items_count > aggregator_items_count)
         {
             ui->expensesListWidget->takeItem(ui->expensesListWidget->currentRow());
         }
+        else
+        {
+            int recent_expense_id = ControlUnit::getInstance()->getRecentExpenseId();
+            for (int i = 0; i < ui->expensesListWidget->count(); i++)
+            {
+                auto exp_item = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->item(i));
+                if (exp_item->getId() == recent_expense_id)
+                {
+                    ui->expensesListWidget->takeItem(i);
+                    auto expense = ControlUnit::getInstance()->getExpense(department_id, recent_expense_id);
+                    ExpenseItem *new_exp_item = new ExpenseItem(recent_expense_id, std::get<0>(expense));
+                    ui->expensesListWidget->insertItem(i, new_exp_item);
+                    break;
+                }
+            }
+        }
         hideAddExpenseTab();
+        hideEditExpenseTab();
     }
 }

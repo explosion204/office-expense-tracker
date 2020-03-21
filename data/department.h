@@ -27,6 +27,8 @@ public:
     int getId();
     int getMembersCount();
     DataStatus getStatus();
+    void setTitle(QString title);
+    void setMembersCount(int count);
 //    void addMember(int id, QString name, QString position, int seniority);
 //    void editMember(int id, QString name, QString position, int seniority);
 //    Employee* getMember(int id);

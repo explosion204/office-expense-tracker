@@ -17,6 +17,7 @@ DepartmentWidget::DepartmentWidget(WidgetPurpose widget_purpose, int id, QWidget
             auto department = ControlUnit::getInstance()->getDepartment(id);
             ui->pushButton->setText("Save");
             ui->idEdit->setText(QString::number(id));
+            ui->idEdit->setReadOnly(true);
             ui->titleEdit->setText(std::get<0>(department));
             ui->membersCountEdit->setText(QString::number(std::get<1>(department)));
             break;
@@ -52,5 +53,5 @@ void DepartmentWidget::on_pushButton_clicked()
 
 void DepartmentWidget::on_cancelButton_clicked()
 {
-
+    cancel();
 }

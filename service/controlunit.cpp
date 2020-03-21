@@ -337,20 +337,23 @@ void ControlUnit::pushModifiedData()
 
 void ControlUnit::addExpense(int id, int department_id, QString name, QString description, int limit, int value)
 {
-    if (aggregator->getDepartment(department_id)->getExpense(id) == nullptr)
+    if (aggregator->getDepartment(department_id) != nullptr)
     {
-        if (permission->canModifyDataDirectly())
+        if (aggregator->getDepartment(department_id)->getExpense(id) == nullptr)
         {
-            Department *department = aggregator->getDepartment(department_id);
-            department->addExpense(id, name, description, limit, value);
+            if (permission->canModifyDataDirectly())
+            {
+                Department *department = aggregator->getDepartment(department_id);
+                department->addExpense(id, name, description, limit, value);
+            }
+            else
+            {
+                Expense *expense = new Expense(id, department_id, name, description, limit, value, CREATED);
+                expenses_list_modified.push_back(expense);
+            }
+            recent_department_id = department_id;
+            recent_expense_id = id;
         }
-        else
-        {
-            Expense *expense = new Expense(id, department_id, name, description, limit, value, CREATED);
-            expenses_list_modified.push_back(expense);
-        }
-        recent_department_id = department_id;
-        recent_expense_id = id;
     }
 }
 

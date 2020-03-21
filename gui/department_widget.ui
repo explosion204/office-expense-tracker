@@ -93,13 +93,6 @@
      </property>
     </spacer>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="idEdit">
-     <property name="placeholderText">
-      <string>Department ID</string>
-     </property>
-    </widget>
-   </item>
    <item row="0" column="1">
     <spacer name="verticalSpacer_4">
      <property name="orientation">
@@ -117,6 +110,13 @@
     <widget class="QPushButton" name="cancelButton">
      <property name="text">
       <string>Cancel</string>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="1">
+    <widget class="QLineEdit" name="idEdit">
+     <property name="placeholderText">
+      <string>Department ID</string>
      </property>
     </widget>
    </item>

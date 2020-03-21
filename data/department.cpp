@@ -23,6 +23,10 @@ int Department::getId() { return id; }
 
 DataStatus Department::getStatus() { return status; }
 
+void Department::setTitle(QString title) { this->title = title; }
+
+void Department::setMembersCount(int count) { this->members_count = count; }
+
 //void Department::addMember(int id, QString name, QString position, int seniority)
 //{
 //    Employee *employee = new Employee(id, this->id, name, position, seniority);
@@ -55,8 +59,11 @@ void Department::addExpense(int id, QString name, QString description, int limit
 
 void Department::editExpense(int id, QString name, QString description, int limit, int value)
 {
-    removeExpense(id);
-    addExpense(id, name, description, limit, value);
+    Expense *expense = getExpense(id);
+    expense->setName(name);
+    expense->setDescription(description);
+    expense->setLimit(limit);
+    expense->setValue(value);
 }
 
 Expense* Department::getExpense(int id)

@@ -11,12 +11,16 @@ ExpenseWidget::ExpenseWidget(WidgetPurpose widget_purpose, int expense_id, int d
     {
         case ADD:
             ui->pushButton->setText("Add");
+            ui->departmentIdEdit->setText(QString::number(department_id));
+            ui->departmentIdEdit->setReadOnly(true);
             break;
         case EDIT:
         {
             auto expense = ControlUnit::getInstance()->getExpense(expense_id, department_id);
             ui->expenseIdEdit->setText(QString::number(expense_id));
             ui->departmentIdEdit->setText(QString::number(department_id));
+            ui->expenseIdEdit->setReadOnly(true);
+            ui->departmentIdEdit->setReadOnly(true);
             ui->nameEdit->setText(std::get<0>(expense));
             ui->descriptionEdit->setText(std::get<1>(expense));
             ui->valueEdit->setText(QString::number(std::get<2>(expense)));
@@ -35,7 +39,7 @@ ExpenseWidget::~ExpenseWidget()
 void ExpenseWidget::on_pushButton_clicked()
 {
     QString expense_id = ui->expenseIdEdit->text();
-    QString department_id = ui->expenseIdEdit->text();
+    QString department_id = ui->departmentIdEdit->text();
     QString name = ui->nameEdit->text();
     QString description = ui->descriptionEdit->text();
     QString value = ui->valueEdit->text();
@@ -53,4 +57,9 @@ void ExpenseWidget::on_pushButton_clicked()
         }
         updateListWidget();
     }
+}
+
+void ExpenseWidget::on_cancelButton_clicked()
+{
+    cancel();
 }

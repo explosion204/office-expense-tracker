@@ -23,4 +23,12 @@ int Expense::getLimit() { return limit; }
 
 int Expense::getValue() { return value; }
 
+void Expense::setName(QString name) { this->name = name; }
+
+void Expense::setDescription(QString description) { this->description = description; }
+
+void Expense::setLimit(int limit) { this->limit = limit; }
+
+void Expense::setValue(int value) { this->value = value; }
+
 DataStatus Expense::getStatus() { return status; }

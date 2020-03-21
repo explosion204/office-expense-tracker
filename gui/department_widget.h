@@ -19,10 +19,10 @@ public:
 
 signals:
     void updateListWidget();
+    void cancel();
 
 private slots:
     void on_pushButton_clicked();
-
     void on_cancelButton_clicked();
 
 private:

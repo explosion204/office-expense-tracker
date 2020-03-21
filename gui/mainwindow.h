@@ -42,6 +42,9 @@ private:
     bool expense_edit_tab_opened = false;
 
     void initViews();
+    void enableControls();
+    void disableControls();
+    void hideAllAddEditTabs();
     void showAddDepartmentTab(DepartmentWidget*);
     void showAddExpenseTab(ExpenseWidget*);
     void showEditDepartmentTab(DepartmentWidget*);

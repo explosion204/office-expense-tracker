@@ -22,6 +22,10 @@ public:
     QString getDescription();
     int getLimit();
     int getValue();
+    void setName(QString name);
+    void setDescription(QString description);
+    void setLimit(int limit);
+    void setValue(int value);
     DataStatus getStatus();
 };
 
