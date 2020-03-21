@@ -28,7 +28,6 @@ private slots:
 private:
     Ui::DepartmentWidget *ui;
     WidgetPurpose purpose;
-
 };
 
 #endif // DEPARTMENT_WIDGET_H

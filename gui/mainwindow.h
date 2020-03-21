@@ -21,6 +21,8 @@ class MainWindow : public QMainWindow
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
+    void updateDepartmentsListWidget();
+    void updateExpensesListWidget();
 
 private slots:
     void on_departmentsListWidget_currentRowChanged(int currentRow);
@@ -48,9 +50,6 @@ private:
     void hideAddExpenseTab();
     void hideEditDepartmentTab();
     void hideEditExpenseTab();
-
-    void updateDepartmentsListWidget();
-    void updateExpensesListWidget();
 };
 
 #endif // MAINWINDOW_H

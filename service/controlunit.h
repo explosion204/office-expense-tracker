@@ -26,6 +26,9 @@ private:
     std::vector<Department*> departments_list_modified;
 //    std::vector<Employee*> members_list_modified;
     std::vector<Expense*> expenses_list_modified;
+    // to track department/expense object being under modifying
+    int recent_department_id;
+    int recent_expense_id;
 public:
     static ControlUnit* getInstance();
     void initDatabase(QString db_path, QString master_key, QString username, QString password);
@@ -38,6 +41,8 @@ public:
     void pushModifiedData();
 
     std::tuple<QString, int> getDepartment(int id);
+    int getRecentDepartmentId();
+    int getRecentExpenseId();
     std::tuple<QString, QString, int, int> getExpense(int expense_id, int department_id);
     std::vector<int> getDepartments();
     std::vector<int> getExpenses(int department_id);

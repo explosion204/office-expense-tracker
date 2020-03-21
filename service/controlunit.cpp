@@ -10,6 +10,7 @@ ControlUnit::ControlUnit()
     expenses_list_modified = std::vector<Expense*>();
     permission = nullptr;
     aggregator = new Aggregator();
+    recent_department_id = recent_expense_id = -1;
 }
 
 ControlUnit* ControlUnit::getInstance()
@@ -108,12 +109,22 @@ Permission* ControlUnit::getPermission() { return permission; }
 std::tuple<QString, int> ControlUnit::getDepartment(int id)
 {
     Department *department = aggregator->getDepartment(id);
-    return std::make_tuple(department->getTitle(), department->getMembersCount());
+    recent_department_id = id;
+    if (department != nullptr)
+        return std::make_tuple(department->getTitle(), department->getMembersCount());
+    else
+        throw std::invalid_argument("No department with such id found");
 }
+
+int ControlUnit::getRecentDepartmentId() { return recent_department_id; }
+
+int ControlUnit::getRecentExpenseId() { return recent_expense_id; }
 
 std::tuple<QString, QString, int, int> ControlUnit::getExpense(int expense_id, int department_id)
 {
     Expense *expense = aggregator->getDepartment(department_id)->getExpense(expense_id);
+    recent_department_id = department_id;
+    recent_expense_id = expense_id;
     return std::make_tuple(expense->getName(), expense->getDescription(), expense->getValue(), expense->getLimit());
 }
 
@@ -326,15 +337,20 @@ void ControlUnit::pushModifiedData()
 
 void ControlUnit::addExpense(int id, int department_id, QString name, QString description, int limit, int value)
 {
-    if (permission->canModifyDataDirectly())
+    if (aggregator->getDepartment(department_id)->getExpense(id) == nullptr)
     {
-        Department *department = aggregator->getDepartment(department_id);
-        department->addExpense(id, name, description, limit, value);
-    }
-    else
-    {
-        Expense *expense = new Expense(id, department_id, name, description, limit, value, CREATED);
-        expenses_list_modified.push_back(expense);
+        if (permission->canModifyDataDirectly())
+        {
+            Department *department = aggregator->getDepartment(department_id);
+            department->addExpense(id, name, description, limit, value);
+        }
+        else
+        {
+            Expense *expense = new Expense(id, department_id, name, description, limit, value, CREATED);
+            expenses_list_modified.push_back(expense);
+        }
+        recent_department_id = department_id;
+        recent_expense_id = id;
     }
 }
 
@@ -350,6 +366,8 @@ void ControlUnit::editExpense(int id, int department_id, QString name, QString d
         Expense *expense = new Expense(id, department_id, name, description, limit, value, MODIFIED);
         expenses_list_modified.push_back(expense);
     }
+    recent_department_id = department_id;
+    recent_expense_id = id;
 }
 
 void ControlUnit::removeExpense(int id, int department_id)
@@ -366,18 +384,24 @@ void ControlUnit::removeExpense(int id, int department_id)
                                        exp_del->getLimit(), exp_del->getValue(), DELETED);
         expenses_list_modified.push_back(expense);
     }
+    recent_department_id = department_id;
+    recent_expense_id = id;
 }
 
 void ControlUnit::addDepartment(int id, QString title, int members_count)
 {
-    if (permission->canModifyDataDirectly())
+    if (aggregator->getDepartment(id) == nullptr)
     {
-        aggregator->addDepartment(id, title, members_count);
-    }
-    else
-    {
-        Department *department = new Department(id, title, members_count, CREATED);
-        departments_list_modified.push_back(department);
+        if (permission->canModifyDataDirectly())
+        {
+            aggregator->addDepartment(id, title, members_count);
+        }
+        else
+        {
+            Department *department = new Department(id, title, members_count, CREATED);
+            departments_list_modified.push_back(department);
+        }
+        recent_department_id = id;
     }
 }
 
@@ -392,6 +416,7 @@ void ControlUnit::editDepartment(int id, QString title, int members_count)
         Department *department = new Department(id, title, members_count, MODIFIED);
         departments_list_modified.push_back(department);
     }
+    recent_department_id = id;
 }
 
 void ControlUnit::removeDepartment(int id)
@@ -406,4 +431,5 @@ void ControlUnit::removeDepartment(int id)
         Department *department = new Department(id, dep_del->getTitle(), dep_del->getMembersCount(), DELETED);
         departments_list_modified.push_back(department);
     }
+    recent_department_id = id;
 }
