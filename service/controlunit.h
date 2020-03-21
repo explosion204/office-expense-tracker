@@ -24,9 +24,7 @@ private:
     Permission *permission;
     Aggregator *aggregator;
     std::vector<Department*> departments_list_modified;
-//    std::vector<Employee*> members_list_modified;
     std::vector<Expense*> expenses_list_modified;
-    // to track department/expense object being under modifying
     int recent_department_id;
     int recent_expense_id;
 public:
@@ -46,13 +44,10 @@ public:
     std::tuple<QString, QString, int, int> getExpense(int expense_id, int department_id);
     std::vector<int> getDepartments();
     std::vector<int> getExpenses(int department_id);
-    //void addMember(int id, int department_id, QString name, QString position, int seniority);
     void addDepartment(int id, QString title, int members_count);
     void addExpense(int id, int department_id, QString name, QString description, int limit, int value);
-    //void removeMember(int id, int department_id);
     void removeDepartment(int id);
     void removeExpense(int id, int department_id);
-    //void editMember(int id, int department_id, QString name, QString position, int seniority);
     void editDepartment(int id, QString title, int members_count);
     void editExpense(int id, int department_id, QString name, QString description, int limit, int value);
 };

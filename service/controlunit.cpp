@@ -6,7 +6,6 @@ ControlUnit::ControlUnit()
 {
     authorized = false;
     departments_list_modified = std::vector<Department*>();
-//    members_list_modified = std::vector<Employee*>();
     expenses_list_modified = std::vector<Expense*>();
     permission = nullptr;
     aggregator = new Aggregator();
@@ -35,12 +34,6 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                      "(Id integer not null primary key unique, "
                      "Title text not null, "
                      "Members_count integer not null)");
-//    db->sendSqlQuery("create table Employees "
-//                     "(Id integer not null primary key unique, "
-//                     "Department_id integer not null unique, "
-//                     "Name text not null, "
-//                     "Position text not null, "
-//                     "Seniority integer not null)");
     db->sendSqlQuery("create table Expenses "
                      "(Id integer not null primary key unique, "
                      "Department_id integer not null, "
@@ -53,13 +46,6 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                      "Title text not null, "
                      "Members_count integer not null, "
                      "Status text not null)");
-//    db->sendSqlQuery("create table Employees_modified "
-//                     "(Id integer not null primary key unique, "
-//                     "Department_id integer not null unique, "
-//                     "Name text not null, "
-//                     "Position text not null, "
-//                     "Seniority integer not null,"
-//                     "Status text not null)");
     db->sendSqlQuery("create table Expenses_modified "
                      "(Id integer not null primary key unique, "
                      "Department_id integer not null, "
@@ -159,18 +145,6 @@ void ControlUnit::pullValidatedData()
         int members_count = query.value(2).toInt();
         aggregator->addDepartment(id, title, members_count);
     }
-//    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Position, Seniority from Employees");
-//    while (query.next())
-//    {
-//        int id = query.value(0).toInt();
-//        int department_id = query.value(1).toInt();
-//        QString name = query.value(2).toString();
-//        QString position = query.value(3).toString();
-//        int seniority = query.value(4).toInt();
-//        Department *department = Aggregator::getInstance()->getDepartment(department_id);
-//        if (department != nullptr)
-//            department->addMember(id, name, position, seniority);
-//    }
     query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit_value, Value from Expenses");
     while (query.next())
     {
@@ -194,15 +168,6 @@ void ControlUnit::pushValidatedData()
         QString title = department->getTitle();
         int members_count = department->getMembersCount();
         Database::getInstance()->sendSqlQuery("insert into Departments (Id, Title, Members_count) values (" + QString::number(department_id) + ", \"" + title + "\", " + QString::number(members_count) + ")");
-//        for (auto employee: department->getEmployees())
-//        {
-//            int id = employee->getId();
-//            QString name = employee->getName();
-//            QString position = employee->getPosition();
-//            int seniority = employee->getSeniority();
-//            Database::getInstance()->sendSqlQuery("insert into Employees (Id, Department_id, Name, Position, Seniority) values (" + QString(id) + ", "
-//                            + QString(department_id) + "), \"" + name + "\", \"" + position + "\", " + QString(seniority) + ")");
-//        }
         for (auto expense: department->getExpenses())
         {
             int id = expense->getId();
@@ -228,18 +193,6 @@ void ControlUnit::pullModifiedData()
         Department *department = new Department(id, title, members_count, status);
         departments_list_modified.push_back(department);
     }
-//    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Position, Seniority, Status from Employees");
-//    while (query.next())
-//    {
-//        int id = query.value(0).toInt();
-//        int department_id = query.value(1).toInt();
-//        QString name = query.value(2).toString();
-//        QString position = query.value(3).toString();
-//        int seniority = query.value(4).toInt();
-//        DataStatus status = DataStatusTools::stringToDataStatus(query.value(5).toString());
-//        Employee *employee = new Employee(id, department_id, name, position, seniority, status);
-//        members_list_modified.push_back(employee);
-//    }
     query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit_value, Value, Status from Expenses");
     while (query.next())
     {
@@ -266,17 +219,6 @@ void ControlUnit::pushModifiedData()
         Database::getInstance()->sendSqlQuery("insert into Departments_modified (Id, Title, Members_count, Status) values "
                                               "(" + QString::number(department_id) + ", \"" + title + "\", " + QString::number(members_count) + ", \"" + status + "\")");
     }
-//    for (auto employee: members_list_modified)
-//    {
-//        int id = employee->getId();
-//        int department_id = employee->getDepartmentId();
-//        QString name = employee->getName();
-//        QString position = employee->getPosition();
-//        int seniority = employee->getSeniority();
-//        QString status = DataStatusTools::dataStatusToString(employee->getStatus());
-//        Database::getInstance()->sendSqlQuery("insert into Employees (Id, Department_id, Name, Position, Seniority, Status) values (" + QString(id) + ", "
-//                        + QString(department_id) + "), \"" + name + "\", \"" + position + "\", " + QString(seniority) + ", \"" + status + "\")");
-//    }
     for (auto expense: expenses_list_modified)
     {
         int id = expense->getId();
@@ -291,70 +233,20 @@ void ControlUnit::pushModifiedData()
     }
 }
 
-//void ControlUnit::addMember(int id, int department_id, QString name, QString position, int seniority)
-//{
-//    if (permission->canModifyDataDirectly())
-//    {
-//        Department *department = Aggregator::getInstance()->getDepartment(department_id);
-//        department->addMember(id, name, position, seniority);
-//    }
-//    else
-//    {
-//        Employee *employee = new Employee(id, department_id, name, position, seniority, CREATED);
-//        members_list_modified.push_back(employee);
-//    }
-//}
-
-//void ControlUnit::editMember(int id, int department_id, QString name, QString position, int seniority)
-//{
-//    if (permission->canModifyDataDirectly())
-//    {
-//        Department *department = Aggregator::getInstance()->getDepartment(department_id);
-//        department->editMember(id, name, position, seniority);
-//    }
-//    else
-//    {
-//        Employee *employee = new Employee(id, department_id, name, position, seniority, MODIFIED);
-//        members_list_modified.push_back(employee);
-//    }
-//}
-
-//void ControlUnit::removeMember(int id, int department_id)
-//{
-//    if (permission->canModifyDataDirectly())
-//    {
-//        Department *department = Aggregator::getInstance()->getDepartment(department_id);
-//        department->removeMember(id);
-//    }
-//    else
-//    {
-//        Employee *empl_del = Aggregator::getInstance()->getDepartment(department_id)->getMember(id);
-//        Employee *employee = new Employee(id, department_id, empl_del->getName(), empl_del->getPosition(),
-//                                          empl_del->getSeniority(), DELETED);
-//        members_list_modified.push_back(employee);
-//    }
-//}
-
 void ControlUnit::addExpense(int id, int department_id, QString name, QString description, int limit, int value)
 {
-    if (aggregator->getDepartment(department_id) != nullptr)
+    if (permission->canModifyDataDirectly())
     {
-        if (aggregator->getDepartment(department_id)->getExpense(id) == nullptr)
-        {
-            if (permission->canModifyDataDirectly())
-            {
-                Department *department = aggregator->getDepartment(department_id);
-                department->addExpense(id, name, description, limit, value);
-            }
-            else
-            {
-                Expense *expense = new Expense(id, department_id, name, description, limit, value, CREATED);
-                expenses_list_modified.push_back(expense);
-            }
-            recent_department_id = department_id;
-            recent_expense_id = id;
-        }
+        Department *department = aggregator->getDepartment(department_id);
+        department->addExpense(id, name, description, limit, value);
     }
+    else
+    {
+        Expense *expense = new Expense(id, department_id, name, description, limit, value, CREATED);
+        expenses_list_modified.push_back(expense);
+    }
+    recent_department_id = department_id;
+    recent_expense_id = id;
 }
 
 void ControlUnit::editExpense(int id, int department_id, QString name, QString description, int limit, int value)
