@@ -160,6 +160,7 @@ void MainWindow::on_addDepartmentButton_clicked()
 {
     DepartmentWidget *widget = new DepartmentWidget(WidgetPurpose::ADD, -1, this);
     connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateDepartmentsListWidget);
+    connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateModifiedDepartmentsListWidget);
     connect(widget, &DepartmentWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
     showAddDepartmentTab(widget);
 }
@@ -173,6 +174,7 @@ void MainWindow::on_editDepartmentButton_clicked()
         DepartmentWidget *widget = new DepartmentWidget(WidgetPurpose::EDIT, department_id, this);
         connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateDepartmentsListWidget);
         connect(widget, &DepartmentWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
+        connect(widget, &DepartmentWidget::updateListWidget, this, &MainWindow::updateModifiedDepartmentsListWidget);
         showEditDepartmentTab(widget);
     }
 }
@@ -184,6 +186,7 @@ void MainWindow::on_removeDepartmentButton_clicked()
         int department_id = dynamic_cast<DepartmentItem*>(ui->departmentsListWidget->currentItem())->getId();
         ControlUnit::getInstance()->removeDepartment(department_id);
         updateDepartmentsListWidget();
+        updateModifiedDepartmentsListWidget();
     }
 }
 
@@ -195,6 +198,7 @@ void MainWindow::on_addExpenseButton_clicked()
         int department_id = dynamic_cast<DepartmentItem*>(department_item)->getId();
         ExpenseWidget *widget = new ExpenseWidget(WidgetPurpose::ADD, -1, department_id, this);
         connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateExpensesListWidget);
+        connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateModifiedExpensesListWidget);
         connect(widget, &ExpenseWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
         showAddExpenseTab(widget);
     }
@@ -210,6 +214,7 @@ void MainWindow::on_editExpenseButton_clicked()
         int department_id = dynamic_cast<ExpenseItem*>(expense_item)->getDepartmentId();
         ExpenseWidget *widget = new ExpenseWidget(WidgetPurpose::EDIT, expense_id, department_id, this);
         connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateExpensesListWidget);
+        connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateModifiedExpensesListWidget);
         connect(widget, &ExpenseWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
         showEditExpenseTab(widget);
     }
@@ -223,6 +228,7 @@ void MainWindow::on_removeExpenseButton_clicked()
         int expense_id = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->currentItem())->getExpenseId();
         ControlUnit::getInstance()->removeExpense(expense_id, department_id);
         updateExpensesListWidget();
+        updateModifiedExpensesListWidget();
     }
 }
 
@@ -301,18 +307,36 @@ void MainWindow::updateExpensesListWidget()
     }
 }
 
-void MainWindow::updateDepartmentsChangedListWidget()
+void MainWindow::updateModifiedDepartmentsListWidget()
 {
     int ui_items_count = ui->modifiedDepartmentsListWidget->count();
     int actual_items_count = ControlUnit::getInstance()->getDepartmentSnapshots()->size();
-    //...
+    if (ui_items_count < actual_items_count)
+    {
+        DepartmentSnapshot snapshot = ControlUnit::getInstance()->getDepartmentSnapshots()->back();
+        DepartmentItem *dep_item = new DepartmentItem(snapshot.id, snapshot.title);
+        ui->modifiedDepartmentsListWidget->addItem(dep_item);
+    }
+    else if (ui_items_count > actual_items_count)
+    {
+        ui->modifiedDepartmentsListWidget->takeItem(ui->modifiedDepartmentsListWidget->currentRow());
+    }
 }
 
-void MainWindow::updateExpensesChangedListWidget()
+void MainWindow::updateModifiedExpensesListWidget()
 {
     int ui_items_count = ui->modifiedExpensesListWidget->count();
     int actual_items_count = ControlUnit::getInstance()->getExpenseSnapshots()->size();
-    //...
+    if (ui_items_count < actual_items_count)
+    {
+        ExpenseSnapshot snapshot = ControlUnit::getInstance()->getExpenseSnapshots()->back();
+        ExpenseItem *exp_item = new ExpenseItem(snapshot.expense_id, snapshot.department_id, snapshot.name);
+        ui->modifiedExpensesListWidget->addItem(exp_item);
+    }
+    else if (ui_items_count > actual_items_count)
+    {
+        ui->modifiedExpensesListWidget->takeItem(ui->modifiedExpensesListWidget->currentRow());
+    }
 }
 
 void MainWindow::on_modifiedDepartmentsListWidget_currentRowChanged(int currentRow)
@@ -336,5 +360,37 @@ void MainWindow::on_modifiedExpensesListWidget_currentRowChanged(int currentRow)
         ui->changeInfo->setText("ACTION: " + status + "\nName: " + snapshot.name + "\nID: " + QString::number(snapshot.expense_id) + "\nDepartment ID: " + QString::number(snapshot.department_id) +
                                  "\nDescription: " + snapshot.description + "\nLimit value per month: " + QString::number(snapshot.limit) + "\nCurrent value: " +
                                  QString::number(snapshot.value));
+    }
+}
+
+void MainWindow::on_departmentApproveButton_clicked()
+{
+    if (ui->modifiedDepartmentsListWidget->currentRow() != -1)
+    {
+
+    }
+}
+
+void MainWindow::on_departmentRejectButton_clicked()
+{
+    if (ui->modifiedDepartmentsListWidget->currentRow() != -1)
+    {
+
+    }
+}
+
+void MainWindow::on_expenseApproveButton_clicked()
+{
+    if (ui->modifiedExpensesListWidget->currentRow() != -1)
+    {
+
+    }
+}
+
+void MainWindow::on_expenseRejectButton_clicked()
+{
+    if (ui->modifiedExpensesListWidget->currentRow() != -1)
+    {
+
     }
 }
