@@ -31,17 +31,11 @@ private slots:
     void on_addExpenseButton_clicked();
     void on_editExpenseButton_clicked();
     void on_removeExpenseButton_clicked();
-
     void on_modifiedDepartmentsListWidget_currentRowChanged(int currentRow);
-
     void on_modifiedExpensesListWidget_currentRowChanged(int currentRow);
 
 private:
     Ui::MainWindow *ui;
-    bool department_add_tab_opened = false;
-    bool department_edit_tab_opened = false;
-    bool expense_add_tab_opened = false;
-    bool expense_edit_tab_opened = false;
 
     void initViews();
     void enableControls();

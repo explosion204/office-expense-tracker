@@ -110,69 +110,49 @@ void MainWindow::hideAllAddEditTabs()
 
 void MainWindow::showAddDepartmentTab(DepartmentWidget *widget)
 {
-    if (!department_add_tab_opened && !department_edit_tab_opened)
-    {
-        ui->leftBottomWidget->addTab(widget, "Add");
-        department_add_tab_opened = true;
-        disableControls();
-    }
+    ui->leftBottomWidget->addTab(widget, "Add");
+    disableControls();
 }
 
 void MainWindow::hideAddDepartmentTab()
 {
     ui->leftBottomWidget->removeTab(1);
-    department_add_tab_opened = false;
     enableControls();
 }
 
 void MainWindow::showEditDepartmentTab(DepartmentWidget *widget)
 {
-    if (!department_add_tab_opened && !department_edit_tab_opened)
-    {
-        ui->leftBottomWidget->addTab(widget, "Edit");
-        department_edit_tab_opened = true;
-        disableControls();
-    }
+    ui->leftBottomWidget->addTab(widget, "Edit");
+    disableControls();
 }
 
 void MainWindow::hideEditDepartmentTab()
 {
     ui->leftBottomWidget->removeTab(1);
-    department_edit_tab_opened = false;
     enableControls();
 }
 
 void MainWindow::showAddExpenseTab(ExpenseWidget *widget)
 {
-    if (!expense_add_tab_opened && !expense_edit_tab_opened)
-    {
-        ui->rightBottomWidget->addTab(widget, "Add");
-        expense_add_tab_opened = true;
-        disableControls();
-    }
+    ui->rightBottomWidget->addTab(widget, "Add");
+    disableControls();
 }
 
 void MainWindow::hideAddExpenseTab()
 {
     ui->rightBottomWidget->removeTab(1);
-    expense_add_tab_opened = false;
     enableControls();
 }
 
 void MainWindow::showEditExpenseTab(ExpenseWidget *widget)
 {
-    if (!expense_add_tab_opened && !expense_edit_tab_opened)
-    {
-        ui->rightBottomWidget->addTab(widget, "Edit");
-        expense_edit_tab_opened = true;
-        disableControls();
-    }
+    ui->rightBottomWidget->addTab(widget, "Edit");
+    disableControls();
 }
 
 void MainWindow::hideEditExpenseTab()
 {
     ui->rightBottomWidget->removeTab(1);
-    expense_edit_tab_opened = false;
     enableControls();
 }
 
