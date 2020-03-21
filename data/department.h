@@ -4,7 +4,6 @@
 #include <vector>
 #include <memory>
 #include <QString>
-#include <data/employee.h>
 #include <permissions/manager.h>
 #include <data/expense.h>
 #include <data/datastatus.h>
