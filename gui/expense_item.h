@@ -7,10 +7,12 @@
 class ExpenseItem : public QListWidgetItem
 {
 private:
-    int id;
+    int expense_id;
+    int department_id;
 public:
-    ExpenseItem(int id, QString string_repr);
-    int getId();
+    ExpenseItem(int expense_id, int department_id, QString string_repr);
+    int getExpenseId();
+    int getDepartmentId();
 };
 
 #endif // EXPENSE_ITEM_H

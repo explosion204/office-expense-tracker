@@ -2,7 +2,6 @@
 #define EXPENSE_H
 
 #include <QString>
-#include <data/datastatus.h>
 
 class Expense
 {
@@ -13,9 +12,8 @@ private:
     QString description;
     int limit;
     int value;
-    DataStatus status;
 public:
-    Expense(int id, int department_id, QString name, QString description, int limit, int value = 0, DataStatus status = DataStatus::VALIDATED);
+    Expense(int id, int department_id, QString name, QString description, int limit, int value = 0);
     int getId();
     int getDepartmentId();
     QString getName();
@@ -26,7 +24,6 @@ public:
     void setDescription(QString description);
     void setLimit(int limit);
     void setValue(int value);
-    DataStatus getStatus();
 };
 
 #endif // EXPENSE_H

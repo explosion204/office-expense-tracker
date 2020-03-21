@@ -24,11 +24,22 @@ MainWindow::~MainWindow()
 void MainWindow::initViews()
 {
     ControlUnit::getInstance()->pullValidatedData();
+    ControlUnit::getInstance()->pullModifiedData();
     for (int department_id: ControlUnit::getInstance()->getDepartments())
     {
         auto department = ControlUnit::getInstance()->getDepartment(department_id);
         DepartmentItem *dep_item = new DepartmentItem(department_id, std::get<0>(department));
         ui->departmentsListWidget->addItem(dep_item);
+    }
+    for (DepartmentSnapshot snapshot: *ControlUnit::getInstance()->getDepartmentSnapshots())
+    {
+        DepartmentItem *dep_item = new DepartmentItem(snapshot.id, snapshot.title);
+        ui->modifiedDepartmentsListWidget->addItem(dep_item);
+    }
+    for (ExpenseSnapshot snapshot: *ControlUnit::getInstance()->getExpenseSnapshots())
+    {
+        ExpenseItem *exp_item = new ExpenseItem(snapshot.expense_id, snapshot.department_id, snapshot.name);
+        ui->modifiedDepartmentsListWidget->addItem(exp_item);
     }
 }
 
@@ -46,7 +57,7 @@ void MainWindow::on_departmentsListWidget_currentRowChanged(int currentRow)
         for (auto expense_id: ControlUnit::getInstance()->getExpenses(department_id))
         {
             auto expense = ControlUnit::getInstance()->getExpense(department_id, expense_id);
-            ExpenseItem *exp_item = new ExpenseItem(expense_id, std::get<0>(expense));
+            ExpenseItem *exp_item = new ExpenseItem(expense_id, department_id, std::get<0>(expense));
             ui->expensesListWidget->addItem(exp_item);
         }
     }
@@ -56,8 +67,8 @@ void MainWindow::on_expensesListWidget_currentRowChanged(int currentRow)
 {
     if (currentRow != -1)
     {
-        int expense_id = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->item(currentRow))->getId();
-        int department_id = dynamic_cast<DepartmentItem*>(ui->departmentsListWidget->currentItem())->getId();
+        int expense_id = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->item(currentRow))->getExpenseId();
+        int department_id = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->currentItem())->getDepartmentId();
         auto expense = ControlUnit::getInstance()->getExpense(expense_id, department_id);
         ui->expenseInfo->setText("Name: " + std::get<0>(expense) + "\nID: " + QString::number(expense_id) + "\nDepartment ID: " + QString::number(department_id) +
                                  "\nDescription: " + std::get<1>(expense) + "\nLimit value per month: " + QString::number(std::get<2>(expense)) + "\nCurrent value: " +
@@ -215,8 +226,8 @@ void MainWindow::on_editExpenseButton_clicked()
     auto department_item = ui->departmentsListWidget->currentItem();
     if (expense_item != nullptr && department_item != nullptr)
     {
-        int expense_id = dynamic_cast<ExpenseItem*>(expense_item)->getId();
-        int department_id = dynamic_cast<DepartmentItem*>(department_item)->getId();
+        int expense_id = dynamic_cast<ExpenseItem*>(expense_item)->getExpenseId();
+        int department_id = dynamic_cast<ExpenseItem*>(expense_item)->getDepartmentId();
         ExpenseWidget *widget = new ExpenseWidget(WidgetPurpose::EDIT, expense_id, department_id, this);
         connect(widget, &ExpenseWidget::updateListWidget, this, &MainWindow::updateExpensesListWidget);
         connect(widget, &ExpenseWidget::cancel, this, &MainWindow::hideAllAddEditTabs);
@@ -228,8 +239,8 @@ void MainWindow::on_removeExpenseButton_clicked()
 {
     if (ui->departmentsListWidget->currentRow() != -1 && ui->expensesListWidget->currentRow() != -1)
     {
-        int department_id = dynamic_cast<DepartmentItem*>(ui->departmentsListWidget->currentItem())->getId();
-        int expense_id = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->currentItem())->getId();
+        int department_id = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->currentItem())->getDepartmentId();
+        int expense_id = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->currentItem())->getExpenseId();
         ControlUnit::getInstance()->removeExpense(expense_id, department_id);
         updateExpensesListWidget();
     }
@@ -238,15 +249,15 @@ void MainWindow::on_removeExpenseButton_clicked()
 void MainWindow::updateDepartmentsListWidget()
 {
     int ui_items_count = ui->departmentsListWidget->count();
-    int aggregator_items_count = ControlUnit::getInstance()->getDepartments().size();
-    if (ui_items_count < aggregator_items_count)
+    int actual_items_count = ControlUnit::getInstance()->getDepartments().size();
+    if (ui_items_count < actual_items_count)
     {
         auto departments = ControlUnit::getInstance()->getDepartments();
         auto department = ControlUnit::getInstance()->getDepartment(departments.back());
         DepartmentItem *dep_item = new DepartmentItem(departments.back(), std::get<0>(department));
         ui->departmentsListWidget->addItem(dep_item);
     }
-    else if (ui_items_count > aggregator_items_count)
+    else if (ui_items_count > actual_items_count)
     {
         ui->departmentsListWidget->takeItem(ui->departmentsListWidget->currentRow());
     }
@@ -277,15 +288,15 @@ void MainWindow::updateExpensesListWidget()
     {
         int department_id = dynamic_cast<DepartmentItem*>(department_item)->getId();
         int ui_items_count = ui->expensesListWidget->count();
-        int aggregator_items_count = ControlUnit::getInstance()->getExpenses(department_id).size();
-        if (ui_items_count < aggregator_items_count)
+        int actual_items_count = ControlUnit::getInstance()->getExpenses(department_id).size();
+        if (ui_items_count < actual_items_count)
         {
             auto expenses = ControlUnit::getInstance()->getExpenses(department_id);
             auto expense = ControlUnit::getInstance()->getExpense(expenses.back(), department_id);
-            ExpenseItem *exp_item = new ExpenseItem(expenses.back(), std::get<0>(expense));
+            ExpenseItem *exp_item = new ExpenseItem(expenses.back(), department_id, std::get<0>(expense));
             ui->expensesListWidget->addItem(exp_item);
         }
-        else if (ui_items_count > aggregator_items_count)
+        else if (ui_items_count > actual_items_count)
         {
             ui->expensesListWidget->takeItem(ui->expensesListWidget->currentRow());
         }
@@ -295,11 +306,11 @@ void MainWindow::updateExpensesListWidget()
             for (int i = 0; i < ui->expensesListWidget->count(); i++)
             {
                 auto exp_item = dynamic_cast<ExpenseItem*>(ui->expensesListWidget->item(i));
-                if (exp_item->getId() == recent_expense_id)
+                if (exp_item->getExpenseId() == recent_expense_id)
                 {
                     ui->expensesListWidget->takeItem(i);
                     auto expense = ControlUnit::getInstance()->getExpense(department_id, recent_expense_id);
-                    ExpenseItem *new_exp_item = new ExpenseItem(recent_expense_id, std::get<0>(expense));
+                    ExpenseItem *new_exp_item = new ExpenseItem(recent_expense_id, department_id, std::get<0>(expense));
                     ui->expensesListWidget->insertItem(i, new_exp_item);
                     break;
                 }
@@ -307,5 +318,43 @@ void MainWindow::updateExpensesListWidget()
         }
         hideAddExpenseTab();
         hideEditExpenseTab();
+    }
+}
+
+void MainWindow::updateDepartmentsChangedListWidget()
+{
+    int ui_items_count = ui->modifiedDepartmentsListWidget->count();
+    int actual_items_count = ControlUnit::getInstance()->getDepartmentSnapshots()->size();
+    //...
+}
+
+void MainWindow::updateExpensesChangedListWidget()
+{
+    int ui_items_count = ui->modifiedExpensesListWidget->count();
+    int actual_items_count = ControlUnit::getInstance()->getExpenseSnapshots()->size();
+    //...
+}
+
+void MainWindow::on_modifiedDepartmentsListWidget_currentRowChanged(int currentRow)
+{
+    if (currentRow != -1)
+    {
+        DepartmentItem *dep_item = dynamic_cast<DepartmentItem*>(ui->modifiedDepartmentsListWidget->item(currentRow));
+        DepartmentSnapshot snapshot = ControlUnit::getInstance()->getDepartmentSnapshot(dep_item->getId());
+        QString status = DataStatusTools::dataStatusToString(snapshot.status);
+        ui->changeInfo->setText("ACTION: " + status + "\nTitle: " + snapshot.title + "\nID: " + QString::number(snapshot.id) + "\nMembers count: " + QString::number(snapshot.members_count));
+    }
+}
+
+void MainWindow::on_modifiedExpensesListWidget_currentRowChanged(int currentRow)
+{
+    if (currentRow != -1)
+    {
+        ExpenseItem *exp_item = dynamic_cast<ExpenseItem*>(ui->modifiedExpensesListWidget->item(currentRow));
+        ExpenseSnapshot snapshot = ControlUnit::getInstance()->getExpenseSnapshot(exp_item->getExpenseId(), exp_item->getDepartmentId());
+        QString status = DataStatusTools::dataStatusToString(snapshot.status);
+        ui->changeInfo->setText("ACTION: " + status + "\nName: " + snapshot.name + "\nID: " + QString::number(snapshot.expense_id) + "\nDepartment ID: " + QString::number(snapshot.department_id) +
+                                 "\nDescription: " + snapshot.description + "\nLimit value per month: " + QString::number(snapshot.limit) + "\nCurrent value: " +
+                                 QString::number(snapshot.value));
     }
 }

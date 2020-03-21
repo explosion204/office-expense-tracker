@@ -4,6 +4,7 @@
 #include <service/database.h>
 #include <data/department.h>
 #include <data/aggregator.h>
+#include <data/snapshots.h>
 #include <permissions/administrator.h>
 #include <permissions/moderator.h>
 #include <permissions/manager.h>
@@ -23,8 +24,8 @@ private:
     bool authorized;
     Permission *permission;
     Aggregator *aggregator;
-    std::vector<Department*> departments_list_modified;
-    std::vector<Expense*> expenses_list_modified;
+    std::vector<DepartmentSnapshot> department_snapshots;
+    std::vector<ExpenseSnapshot> expense_snapshots;
     int recent_department_id;
     int recent_expense_id;
 public:
@@ -39,9 +40,13 @@ public:
     void pushModifiedData();
 
     std::tuple<QString, int> getDepartment(int id);
+    std::tuple<QString, QString, int, int> getExpense(int expense_id, int department_id);
     int getRecentDepartmentId();
     int getRecentExpenseId();
-    std::tuple<QString, QString, int, int> getExpense(int expense_id, int department_id);
+    std::vector<DepartmentSnapshot>* getDepartmentSnapshots();
+    std::vector<ExpenseSnapshot>* getExpenseSnapshots();
+    DepartmentSnapshot getDepartmentSnapshot(int id);
+    ExpenseSnapshot getExpenseSnapshot(int expense_id, int department_id);
     std::vector<int> getDepartments();
     std::vector<int> getExpenses(int department_id);
     void addDepartment(int id, QString title, int members_count);

@@ -1,12 +1,11 @@
 #include "department.h"
 
-Department::Department(int id, QString title, int members_count, DataStatus status)
+Department::Department(int id, QString title, int members_count)
 {
     expense_list = std::vector<Expense*>();
     this->title = title;
     this->id = id;
     this->members_count = members_count;
-    this->status = status;
 }
 
 std::vector<Expense*> Department::getExpenses() { return expense_list; }
@@ -16,8 +15,6 @@ QString Department::getTitle() { return title; }
 int Department::getMembersCount() { return members_count; }
 
 int Department::getId() { return id; }
-
-DataStatus Department::getStatus() { return status; }
 
 void Department::setTitle(QString title) { this->title = title; }
 

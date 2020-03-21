@@ -6,7 +6,6 @@
 #include <QString>
 #include <permissions/manager.h>
 #include <data/expense.h>
-#include <data/datastatus.h>
 
 class Department
 {
@@ -15,14 +14,12 @@ private:
     int id;
     int members_count;
     std::vector<Expense*> expense_list;
-    DataStatus status;
 public:
-    Department(int id, QString title, int members_count, DataStatus status = DataStatus::VALIDATED);
+    Department(int id, QString title, int members_count);
     std::vector<Expense*> getExpenses();
     QString getTitle();
     int getId();
     int getMembersCount();
-    DataStatus getStatus();
     void setTitle(QString title);
     void setMembersCount(int count);
     void addExpense(int id, QString name, QString description, int limit, int value = 0);

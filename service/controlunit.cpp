@@ -5,8 +5,8 @@ ControlUnit* ControlUnit::instance = nullptr;
 ControlUnit::ControlUnit()
 {
     authorized = false;
-    departments_list_modified = std::vector<Department*>();
-    expenses_list_modified = std::vector<Expense*>();
+    department_snapshots = std::vector<DepartmentSnapshot>();
+    expense_snapshots = std::vector<ExpenseSnapshot>();
     permission = nullptr;
     aggregator = new Aggregator();
     recent_department_id = recent_expense_id = -1;
@@ -106,6 +106,40 @@ int ControlUnit::getRecentDepartmentId() { return recent_department_id; }
 
 int ControlUnit::getRecentExpenseId() { return recent_expense_id; }
 
+std::vector<DepartmentSnapshot>* ControlUnit::getDepartmentSnapshots()
+{
+    return &department_snapshots;
+}
+
+std::vector<ExpenseSnapshot>* ControlUnit::getExpenseSnapshots()
+{
+    return &expense_snapshots;
+}
+
+DepartmentSnapshot ControlUnit::getDepartmentSnapshot(int id)
+{
+    for (auto iter = department_snapshots.begin(); iter != department_snapshots.end(); iter++)
+    {
+        if ((*iter).id == id)
+        {
+            return *iter;
+        }
+    }
+    throw std::invalid_argument("Cannot find snapshot.");
+}
+
+ExpenseSnapshot ControlUnit::getExpenseSnapshot(int expense_id, int department_id)
+{
+    for (auto iter = expense_snapshots.begin(); iter != expense_snapshots.end(); iter++)
+    {
+        if ((*iter).expense_id == expense_id && (*iter).department_id == department_id)
+        {
+            return *iter;
+        }
+    }
+    throw std::invalid_argument("Cannot find snapshot.");
+}
+
 std::tuple<QString, QString, int, int> ControlUnit::getExpense(int expense_id, int department_id)
 {
     Expense *expense = aggregator->getDepartment(department_id)->getExpense(expense_id);
@@ -190,8 +224,8 @@ void ControlUnit::pullModifiedData()
         QString title = query.value(1).toString();
         int members_count = query.value(2).toInt();
         DataStatus status = DataStatusTools::stringToDataStatus(query.value(3).toString());
-        Department *department = new Department(id, title, members_count, status);
-        departments_list_modified.push_back(department);
+        DepartmentSnapshot snapshot(status, id, title, members_count);
+        department_snapshots.push_back(snapshot);
     }
     query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit_value, Value, Status from Expenses");
     while (query.next())
@@ -203,31 +237,31 @@ void ControlUnit::pullModifiedData()
         int limit = query.value(4).toInt();
         int value = query.value(5).toInt();
         DataStatus status = DataStatusTools::stringToDataStatus(query.value(6).toString());
-        Expense *expense = new Expense(id, department_id, name, description, limit, value, status);
-        expenses_list_modified.push_back(expense);
+        ExpenseSnapshot snapshot(status, id, department_id, name, description, limit, value);
+        expense_snapshots.push_back(snapshot);
     }
 }
 
 void ControlUnit::pushModifiedData()
 {
-    for (auto department: departments_list_modified)
+    for (DepartmentSnapshot department_snapshot: department_snapshots)
     {
-        int department_id = department->getId();
-        QString title = department->getTitle();
-        int members_count = department->getMembersCount();
-        QString status = DataStatusTools::dataStatusToString(department->getStatus());
+        int department_id = department_snapshot.id;
+        QString title = department_snapshot.title;
+        int members_count = department_snapshot.members_count;
+        QString status = DataStatusTools::dataStatusToString(department_snapshot.status);
         Database::getInstance()->sendSqlQuery("insert into Departments_modified (Id, Title, Members_count, Status) values "
                                               "(" + QString::number(department_id) + ", \"" + title + "\", " + QString::number(members_count) + ", \"" + status + "\")");
     }
-    for (auto expense: expenses_list_modified)
+    for (ExpenseSnapshot expense_snapshot: expense_snapshots)
     {
-        int id = expense->getId();
-        int department_id = expense->getDepartmentId();
-        QString name = expense->getName();
-        QString description = expense->getDescription();
-        int limit = expense->getLimit();
-        int value = expense->getValue();
-        QString status = DataStatusTools::dataStatusToString(expense->getStatus());
+        int id = expense_snapshot.expense_id;
+        int department_id = expense_snapshot.department_id;
+        QString name = expense_snapshot.name;
+        QString description = expense_snapshot.description;
+        int limit = expense_snapshot.limit;
+        int value = expense_snapshot.value;
+        QString status = DataStatusTools::dataStatusToString(expense_snapshot.status);
         Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value, Status) values (" + QString::number(id) + ", "
                         + QString::number(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString::number(limit) + ", " + QString::number(value) + ", \"" + status + "\")");
     }
@@ -242,8 +276,8 @@ void ControlUnit::addExpense(int id, int department_id, QString name, QString de
     }
     else
     {
-        Expense *expense = new Expense(id, department_id, name, description, limit, value, CREATED);
-        expenses_list_modified.push_back(expense);
+        ExpenseSnapshot snapshot(CREATED, id, department_id, name, description, limit, value);
+        expense_snapshots.push_back(snapshot);
     }
     recent_department_id = department_id;
     recent_expense_id = id;
@@ -258,8 +292,8 @@ void ControlUnit::editExpense(int id, int department_id, QString name, QString d
     }
     else
     {
-        Expense *expense = new Expense(id, department_id, name, description, limit, value, MODIFIED);
-        expenses_list_modified.push_back(expense);
+        ExpenseSnapshot snapshot(MODIFIED, id, department_id, name, description, limit, value);
+        expense_snapshots.push_back(snapshot);
     }
     recent_department_id = department_id;
     recent_expense_id = id;
@@ -275,9 +309,8 @@ void ControlUnit::removeExpense(int id, int department_id)
     else
     {
         Expense *exp_del = aggregator->getDepartment(department_id)->getExpense(id);
-        Expense *expense = new Expense(id, department_id, exp_del->getName(), exp_del->getDescription(),
-                                       exp_del->getLimit(), exp_del->getValue(), DELETED);
-        expenses_list_modified.push_back(expense);
+        ExpenseSnapshot snapshot(DELETED, id, department_id, exp_del->getName(), exp_del->getDescription(), exp_del->getLimit(), exp_del->getValue());
+        expense_snapshots.push_back(snapshot);
     }
     recent_department_id = department_id;
     recent_expense_id = id;
@@ -293,8 +326,8 @@ void ControlUnit::addDepartment(int id, QString title, int members_count)
         }
         else
         {
-            Department *department = new Department(id, title, members_count, CREATED);
-            departments_list_modified.push_back(department);
+            DepartmentSnapshot snapshot(CREATED, id, title, members_count);
+            department_snapshots.push_back(snapshot);
         }
         recent_department_id = id;
     }
@@ -308,8 +341,8 @@ void ControlUnit::editDepartment(int id, QString title, int members_count)
     }
     else
     {
-        Department *department = new Department(id, title, members_count, MODIFIED);
-        departments_list_modified.push_back(department);
+        DepartmentSnapshot snapshot(MODIFIED, id, title, members_count);
+        department_snapshots.push_back(snapshot);
     }
     recent_department_id = id;
 }
@@ -323,8 +356,8 @@ void ControlUnit::removeDepartment(int id)
     else
     {
         Department *dep_del = aggregator->getDepartment(id);
-        Department *department = new Department(id, dep_del->getTitle(), dep_del->getMembersCount(), DELETED);
-        departments_list_modified.push_back(department);
+        DepartmentSnapshot snapshot(DELETED, id, dep_del->getTitle(), dep_del->getMembersCount());
+        department_snapshots.push_back(snapshot);
     }
     recent_department_id = id;
 }

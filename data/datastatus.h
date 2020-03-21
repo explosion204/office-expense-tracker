@@ -5,7 +5,7 @@
 
 enum DataStatus
 {
-    CREATED = 0, MODIFIED = 1, DELETED = 2, VALIDATED = 3
+    CREATED = 0, MODIFIED = 1, DELETED = 2
 };
 
 class DataStatusTools
@@ -21,10 +21,7 @@ public:
                 return "MODIFIED";
             case DELETED:
                 return "DELETED";
-            default:
-                break;
         }
-        return "VALIDATED";
     }
 
     static DataStatus stringToDataStatus(QString string)
@@ -35,7 +32,7 @@ public:
             return MODIFIED;
         if (!string.compare("DELETED"))
             return DELETED;
-        return VALIDATED;
+        throw std::invalid_argument("invalid argument");
     }
 };
 

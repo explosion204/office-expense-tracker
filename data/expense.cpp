@@ -1,6 +1,6 @@
 #include "expense.h"
 
-Expense::Expense(int id, int department_id, QString name, QString description, int limit, int value, DataStatus status)
+Expense::Expense(int id, int department_id, QString name, QString description, int limit, int value)
 {
     this->id = id;
     this->department_id = department_id;
@@ -8,7 +8,6 @@ Expense::Expense(int id, int department_id, QString name, QString description, i
     this->description = description;
     this->limit = limit;
     this->value = value;
-    this->status = status;
 }
 
 int Expense::getId() { return id; }
@@ -30,5 +29,3 @@ void Expense::setDescription(QString description) { this->description = descript
 void Expense::setLimit(int limit) { this->limit = limit; }
 
 void Expense::setValue(int value) { this->value = value; }
-
-DataStatus Expense::getStatus() { return status; }
