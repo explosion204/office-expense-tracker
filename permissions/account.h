@@ -6,12 +6,11 @@
 #include <permissions/administrator.h>
 #include <permissions/moderator.h>
 #include <permissions/manager.h>
-#include <permissions/user.h>
 #include <lib/picosha2.h>
 
 enum PermissionType
 {
-    ADMIN, MODERATOR, MANAGER, USER
+    ADMIN, MODERATOR, MANAGER
 };
 
 class Account
@@ -27,9 +26,6 @@ public:
     QString getPasswordHash();
     Permission* getPermission();
     PermissionType getPermissionType();
-    void setUsername(QString username);
-    void setPassword(QString password_hash);
-    void setPermissionType(PermissionType permission_type);
 };
 
 #endif // ACCOUNT_H

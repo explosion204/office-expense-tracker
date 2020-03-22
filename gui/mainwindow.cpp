@@ -40,6 +40,29 @@ void MainWindow::initViews()
         ExpenseItem *exp_item = new ExpenseItem(snapshot.expense_id, snapshot.department_id, snapshot.name);
         ui->modifiedDepartmentsListWidget->addItem(exp_item);
     }
+    for (QString username: ControlUnit::getInstance()->getAccounts())
+    {
+        if (username != ControlUnit::getInstance()->getActiveAccountUsername())
+        {
+            switch (ControlUnit::getInstance()->getAccountPermission(username))
+            {
+                case MODERATOR:
+                {
+                    QListWidgetItem *acc_item = new QListWidgetItem("[MODERATOR] " + username);
+                    ui->accountsListWidget->addItem(acc_item);
+                    break;
+                }
+                case MANAGER:
+                {
+                    QListWidgetItem *acc_item = new QListWidgetItem("[MANAGER] " + username);
+                    ui->accountsListWidget->addItem(acc_item);
+                    break;
+                }
+                default:
+                    break;
+            }
+        }
+    }
 }
 
 void MainWindow::on_departmentsListWidget_currentRowChanged(int currentRow)
@@ -429,5 +452,70 @@ void MainWindow::on_expenseRejectButton_clicked()
         ExpenseSnapshot snapshot = ControlUnit::getInstance()->getExpenseSnapshot(exp_item->getExpenseId(), exp_item->getDepartmentId());
         ControlUnit::getInstance()->removeModifiedExpense(snapshot.expense_id, snapshot.department_id);
         updateModifiedExpensesListWidget();
+    }
+}
+
+void MainWindow::on_addAccountButton_clicked()
+{
+    QString username = ui->usernameEdit->text();
+    QString password = ui->passwordEdit->text();
+    if (!username.isEmpty() && !password.isEmpty() && ui->accessRights->currentIndex() != -1)
+    {
+        switch (ui->accessRights->currentIndex())
+        {
+            case 0:
+                if (!ControlUnit::getInstance()->addAccount(username, password, MODERATOR))
+                {
+                    //handler
+                }
+                break;
+            case 1:
+                if (!ControlUnit::getInstance()->addAccount(username, password, MANAGER))
+                {
+                    //handler
+                }
+                break;
+        }
+        updateAccountsListWidget();
+    }
+}
+
+void MainWindow::on_removeAccountButton_clicked()
+{
+    if (ui->accountsListWidget->currentRow() != -1)
+    {
+        ControlUnit::getInstance()->removeAccount(ui->accountsListWidget->currentItem()->text());
+        updateAccountsListWidget();
+    }
+}
+
+void MainWindow::updateAccountsListWidget()
+{
+    int ui_items_count = ui->accountsListWidget->count() + 1;
+    int actual_items_count = ControlUnit::getInstance()->getAccounts().size();
+    if (ui_items_count < actual_items_count)
+    {
+        QString username = ControlUnit::getInstance()->getAccounts().back();
+        switch (ControlUnit::getInstance()->getAccountPermission(username))
+        {
+            case MODERATOR:
+            {
+                QListWidgetItem *acc_item = new QListWidgetItem("[MODERATOR] " + username);
+                ui->accountsListWidget->addItem(acc_item);
+                break;
+            }
+            case MANAGER:
+            {
+                QListWidgetItem *acc_item = new QListWidgetItem("[MANAGER] " + username);
+                ui->accountsListWidget->addItem(acc_item);
+                break;
+            }
+            default:
+                break;
+        }
+    }
+    else if (ui_items_count > actual_items_count)
+    {
+       ui->accountsListWidget->takeItem(ui->accountsListWidget->currentRow());
     }
 }

@@ -33,14 +33,12 @@ private slots:
     void on_removeExpenseButton_clicked();
     void on_modifiedDepartmentsListWidget_currentRowChanged(int currentRow);
     void on_modifiedExpensesListWidget_currentRowChanged(int currentRow);
-
     void on_departmentApproveButton_clicked();
-
     void on_departmentRejectButton_clicked();
-
     void on_expenseApproveButton_clicked();
-
     void on_expenseRejectButton_clicked();
+    void on_addAccountButton_clicked();
+    void on_removeAccountButton_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -62,6 +60,7 @@ private:
     void updateExpensesListWidget();
     void updateModifiedDepartmentsListWidget();
     void updateModifiedExpensesListWidget();
+    void updateAccountsListWidget();
 };
 
 #endif // MAINWINDOW_H

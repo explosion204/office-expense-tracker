@@ -331,26 +331,12 @@
      </attribute>
      <layout class="QGridLayout" name="gridLayout_2">
       <item row="0" column="0">
-       <widget class="QListWidget" name="listWidget"/>
+       <widget class="QListWidget" name="accountsListWidget"/>
       </item>
       <item row="1" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <layout class="QVBoxLayout" name="verticalLayout_2">
-          <item>
-           <widget class="QLabel" name="label_2">
-            <property name="text">
-             <string>Password</string>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QLineEdit" name="lineEdit_2"/>
-          </item>
-         </layout>
-        </item>
-        <item>
-         <layout class="QVBoxLayout" name="verticalLayout">
           <item>
            <widget class="QLabel" name="label">
             <property name="text">
@@ -359,7 +345,34 @@
            </widget>
           </item>
           <item>
-           <widget class="QLineEdit" name="lineEdit">
+           <widget class="QLineEdit" name="usernameEdit">
+            <property name="text">
+             <string>Username</string>
+            </property>
+            <property name="echoMode">
+             <enum>QLineEdit::Normal</enum>
+            </property>
+            <property name="readOnly">
+             <bool>false</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>Password</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="passwordEdit">
+            <property name="text">
+             <string>Password</string>
+            </property>
             <property name="echoMode">
              <enum>QLineEdit::Password</enum>
             </property>
@@ -372,21 +385,14 @@
       <item row="3" column="0">
        <layout class="QHBoxLayout" name="horizontalLayout">
         <item>
-         <widget class="QPushButton" name="pushButton_4">
+         <widget class="QPushButton" name="addAccountButton">
           <property name="text">
            <string>Add</string>
           </property>
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="pushButton">
-          <property name="text">
-           <string>Save</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pushButton_5">
+         <widget class="QPushButton" name="removeAccountButton">
           <property name="text">
            <string>Remove</string>
           </property>
@@ -396,11 +402,9 @@
       </item>
       <item row="2" column="0">
        <widget class="QComboBox" name="accessRights">
-        <item>
-         <property name="text">
-          <string>Administrator</string>
-         </property>
-        </item>
+        <property name="currentIndex">
+         <number>0</number>
+        </property>
         <item>
          <property name="text">
           <string>Moderator</string>

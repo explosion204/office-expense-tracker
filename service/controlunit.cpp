@@ -76,15 +76,10 @@ void ControlUnit::loadAccounts()
         {
             accounts.push_back(Account(username, password_hash, MODERATOR));
         }
-        else if (!account_type.compare("MANAGER"))
+        else
         {
             accounts.push_back(Account(username, password_hash, MANAGER));
         }
-        else
-        {
-            accounts.push_back(Account(username, password_hash, USER));
-        }
-
     }
 }
 
@@ -439,6 +434,8 @@ PermissionType ControlUnit::getAccountPermission(QString username)
     throw std::invalid_argument("Cannot find account.");
 }
 
+QString ControlUnit::getActiveAccountUsername() { return active_account->getUsername(); }
+
 PermissionType ControlUnit::getActiveAccountPermission()
 {
     return active_account->getPermissionType();
@@ -457,22 +454,6 @@ bool ControlUnit::addAccount(QString username, QString password, PermissionType 
     picosha2::hash256_hex_string(password.toStdString(), pass_hash);
     accounts.push_back(Account(username, QString::fromStdString(pass_hash), permission_type));
     return true;
-}
-
-void ControlUnit::editAccount(QString username, QString password, PermissionType permission_type)
-{
-    for (auto iter = accounts.begin(); iter != accounts.end(); iter++)
-    {
-        if ((*iter).getUsername() == username)
-        {
-            (*iter).setUsername(username);
-            std::string pass_hash = std::string();
-            picosha2::hash256_hex_string(password.toStdString(), pass_hash);
-            (*iter).setPassword(QString::fromStdString(pass_hash));
-            (*iter).setPermissionType(permission_type);
-        }
-    }
-    throw std::invalid_argument("Cannot find account.");
 }
 
 void ControlUnit::removeAccount(QString username)
