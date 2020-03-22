@@ -20,7 +20,12 @@ bool Database::init(QString db_path, QString master_key)
         }
         return true;
     }
-    return false;
+    else
+    {
+        instance->db.setDatabaseName(db_path);
+        instance->db.setPassword(master_key);
+        return true;
+    }
 }
 
 Database* Database::getInstance() { return instance; }

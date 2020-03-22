@@ -10,7 +10,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->centralwidget->setLayout(new QGridLayout());
     ui->centralwidget->layout()->addWidget(ui->tabWidget);
     ui->centralwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    ui->tabWidget->setTabEnabled(1, false);
     //objects set up
     initViews();
 }
