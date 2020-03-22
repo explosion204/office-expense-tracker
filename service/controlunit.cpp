@@ -28,8 +28,7 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
     std::string pass_hash = std::string();
     picosha2::hash256_hex_string(password.toStdString(), pass_hash);
     db->sendSqlQuery("create table auth "
-                     "(user_id integer primary key unique, "
-                     "username text, "
+                     "(username text primary key unique, "
                      "password text, "
                      "account_type text)");
     db->sendSqlQuery("create table Departments "
@@ -56,12 +55,13 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                      "Limit_value integer not null, "
                      "Value integer not null,"
                      "Status text not null)");
-    db->sendSqlQuery("insert into auth (user_id, username, password, account_type) values (0, \"" + username + "\", \"" + QString::fromStdString(pass_hash) + "\", "
+    db->sendSqlQuery("insert into auth (username, password, account_type) values (\"" + username + "\", \"" + QString::fromStdString(pass_hash) + "\", "
                     "\"ADMIN\")");
 }
 
 void ControlUnit::loadAccounts()
 {
+    accounts.clear();
     QSqlQuery query = Database::getInstance()->sendSqlQuery("select username, password, account_type from auth");
     while (query.next())
     {
@@ -215,6 +215,27 @@ void ControlUnit::pushValidatedData()
 {
     Database::getInstance()->sendSqlQuery("delete from Departments");
     Database::getInstance()->sendSqlQuery("delete from Expenses");
+    Database::getInstance()->sendSqlQuery("delete from auth");
+    for (auto account: accounts)
+    {
+        QString username = account.getUsername();
+        QString password_hash = account.getPasswordHash();
+        PermissionType permission_type = account.getPermissionType();
+        QString str_permission_type;
+        switch (permission_type)
+        {
+            case ADMIN:
+                str_permission_type = "ADMIN";
+                break;
+            case MODERATOR:
+                str_permission_type = "MODERATOR";
+                break;
+            case MANAGER:
+                str_permission_type = "MANAGER";
+                break;
+        }
+        Database::getInstance()->sendSqlQuery("insert into auth (username, password, account_type) values (\"" + username + "\", \"" + password_hash + "\", \"" + str_permission_type + "\")");
+    }
     for (auto department: aggregator->getDepartments())
     {
         int department_id = department->getId();
