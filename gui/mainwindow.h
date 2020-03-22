@@ -40,6 +40,9 @@ private slots:
     void on_expenseRejectButton_clicked();
     void on_addAccountButton_clicked();
     void on_removeAccountButton_clicked();
+    void on_updateStatsButton_clicked();
+
+    void on_statsListWidget_currentRowChanged(int currentRow);
 
 private:
     Ui::MainWindow *ui;

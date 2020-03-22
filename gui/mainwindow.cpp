@@ -537,3 +537,45 @@ void MainWindow::updateAccountsListWidget()
        ui->accountsListWidget->takeItem(ui->accountsListWidget->currentRow());
     }
 }
+
+void MainWindow::on_updateStatsButton_clicked()
+{
+    auto stat_items = std::vector<std::pair<int, int>>();
+    for (int department_id: ControlUnit::getInstance()->getDepartments())
+    {
+        int sum = 0;
+        for (int expense_id: ControlUnit::getInstance()->getExpenses(department_id))
+        {
+            sum += std::get<3>(ControlUnit::getInstance()->getExpense(expense_id, department_id));
+        }
+        stat_items.push_back(std::make_pair(department_id, sum));
+    }
+    auto compare_lambda = [] (std::pair<int, int> x, std::pair<int, int> y)
+    {
+        return std::get<1>(x) > std::get<1>(y);
+    };
+    std::sort(stat_items.begin(), stat_items.end(), compare_lambda);
+    ui->statsListWidget->clear();
+    for (auto stat_item: stat_items)
+    {
+        auto department = ControlUnit::getInstance()->getDepartment(std::get<0>(stat_item));
+        DepartmentItem *dep_item = new DepartmentItem(std::get<0>(stat_item), std::get<0>(department));
+        ui->statsListWidget->addItem(dep_item);
+    }
+}
+
+void MainWindow::on_statsListWidget_currentRowChanged(int currentRow)
+{
+    if (currentRow != -1)
+    {
+        ui->statsBrowser->clear();
+        int department_id = dynamic_cast<DepartmentItem*>(ui->statsListWidget->item(currentRow))->getId();
+        int sum = 0;
+        for (int expense_id: ControlUnit::getInstance()->getExpenses(department_id))
+        {
+            sum += std::get<3>(ControlUnit::getInstance()->getExpense(expense_id, department_id));
+        }
+        ui->statsBrowser->clearHistory();
+        ui->statsBrowser->setText("TOTAL EXPENSE QUANTITY: " + QString::number(sum));
+    }
+}

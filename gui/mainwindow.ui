@@ -215,16 +215,27 @@
       <string>Stats</string>
      </attribute>
      <layout class="QGridLayout" name="gridLayout_12">
-      <item row="0" column="0">
-       <widget class="QListWidget" name="listWidget"/>
-      </item>
       <item row="0" column="1">
        <layout class="QVBoxLayout" name="verticalLayout_3">
         <item>
-         <widget class="QGraphicsView" name="graphicsView"/>
+         <widget class="QGraphicsView" name="statsGraphicsView"/>
         </item>
         <item>
-         <widget class="QTextBrowser" name="textBrowser"/>
+         <widget class="QTextBrowser" name="statsBrowser"/>
+        </item>
+       </layout>
+      </item>
+      <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_5">
+        <item>
+         <widget class="QListWidget" name="statsListWidget"/>
+        </item>
+        <item>
+         <widget class="QPushButton" name="updateStatsButton">
+          <property name="text">
+           <string>Update</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>

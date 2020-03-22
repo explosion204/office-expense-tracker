@@ -5,7 +5,6 @@ Database* Database::instance = nullptr;
 Database::Database(QString db_path, QString master_key)
 {
     db = QSqlDatabase::addDatabase("SQLITECIPHER");
-    //db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(db_path);
     db.setPassword(master_key);
 }
