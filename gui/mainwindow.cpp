@@ -20,8 +20,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::closeEvent(QCloseEvent *event)
+{
+    ControlUnit::getInstance()->pushValidatedData();
+    ControlUnit::getInstance()->pushModifiedData();
+}
+
 void MainWindow::initViews()
 {
+    //access workaround
+    switch (ControlUnit::getInstance()->getActiveAccountPermissionType())
+    {
+        case ADMIN: break;
+        case MODERATOR:
+            ui->tabWidget->setTabEnabled(3, false);
+            break;
+        case MANAGER:
+            ui->tabWidget->setTabEnabled(2, false);
+            ui->tabWidget->setTabEnabled(3, false);
+            break;
+    }
+    //data workaround
     ControlUnit::getInstance()->pullValidatedData();
     ControlUnit::getInstance()->pullModifiedData();
     for (int department_id: ControlUnit::getInstance()->getDepartments())
@@ -38,7 +57,7 @@ void MainWindow::initViews()
     for (ExpenseSnapshot snapshot: *ControlUnit::getInstance()->getExpenseSnapshots())
     {
         ExpenseItem *exp_item = new ExpenseItem(snapshot.expense_id, snapshot.department_id, snapshot.name);
-        ui->modifiedDepartmentsListWidget->addItem(exp_item);
+        ui->modifiedExpensesListWidget->addItem(exp_item);
     }
     for (QString username: ControlUnit::getInstance()->getAccounts())
     {
@@ -78,7 +97,7 @@ void MainWindow::on_departmentsListWidget_currentRowChanged(int currentRow)
         ui->expensesListWidget->clear();
         for (auto expense_id: ControlUnit::getInstance()->getExpenses(department_id))
         {
-            auto expense = ControlUnit::getInstance()->getExpense(department_id, expense_id);
+            auto expense = ControlUnit::getInstance()->getExpense(expense_id, department_id);
             ExpenseItem *exp_item = new ExpenseItem(expense_id, department_id, std::get<0>(expense));
             ui->expensesListWidget->addItem(exp_item);
         }
@@ -317,7 +336,7 @@ void MainWindow::updateExpensesListWidget()
                 if (exp_item->getExpenseId() == recent_expense_id)
                 {
                     ui->expensesListWidget->takeItem(i);
-                    auto expense = ControlUnit::getInstance()->getExpense(department_id, recent_expense_id);
+                    auto expense = ControlUnit::getInstance()->getExpense(recent_expense_id, department_id);
                     ExpenseItem *new_exp_item = new ExpenseItem(recent_expense_id, department_id, std::get<0>(expense));
                     ui->expensesListWidget->insertItem(i, new_exp_item);
                     break;

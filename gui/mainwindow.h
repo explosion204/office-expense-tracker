@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QCloseEvent>
 #include <QGridLayout>
 #include <service/controlunit.h>
 #include <gui/department_item.h>
@@ -42,6 +43,7 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    void closeEvent(QCloseEvent *event) override;
 
     void initViews();
     void enableControls();

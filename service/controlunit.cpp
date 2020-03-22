@@ -213,6 +213,8 @@ void ControlUnit::pullValidatedData()
 
 void ControlUnit::pushValidatedData()
 {
+    Database::getInstance()->sendSqlQuery("delete from Departments");
+    Database::getInstance()->sendSqlQuery("delete from Expenses");
     for (auto department: aggregator->getDepartments())
     {
         int department_id = department->getId();
@@ -227,7 +229,7 @@ void ControlUnit::pushValidatedData()
             int limit = expense->getLimit();
             int value = expense->getValue();
             Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value) values (" + QString::number(id) + ", "
-                            + QString::number(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString::number(limit) + ", " + QString::number(value) + ")");
+                            + QString::number(department_id) + ", \"" + name + "\", \"" + description + "\", " + QString::number(limit) + ", " + QString::number(value) + ")");
         }
     }
 }
@@ -244,7 +246,7 @@ void ControlUnit::pullModifiedData()
         DepartmentSnapshot snapshot(status, id, title, members_count);
         department_snapshots.push_back(snapshot);
     }
-    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit_value, Value, Status from Expenses");
+    query = Database::getInstance()->sendSqlQuery("select Id, Department_id, Name, Description, Limit_value, Value, Status from Expenses_modified");
     while (query.next())
     {
         int id = query.value(0).toInt();
@@ -261,6 +263,8 @@ void ControlUnit::pullModifiedData()
 
 void ControlUnit::pushModifiedData()
 {
+    Database::getInstance()->sendSqlQuery("delete from Departments_modified");
+    Database::getInstance()->sendSqlQuery("delete from Expenses_modified");
     for (DepartmentSnapshot department_snapshot: department_snapshots)
     {
         int department_id = department_snapshot.id;
@@ -279,8 +283,8 @@ void ControlUnit::pushModifiedData()
         int limit = expense_snapshot.limit;
         int value = expense_snapshot.value;
         QString status = DataStatusTools::dataStatusToString(expense_snapshot.status);
-        Database::getInstance()->sendSqlQuery("insert into Expenses (Id, Department_id, Name, Description, Limit_value, Value, Status) values (" + QString::number(id) + ", "
-                        + QString::number(department_id) + "), \"" + name + "\", \"" + description + "\", " + QString::number(limit) + ", " + QString::number(value) + ", \"" + status + "\")");
+        Database::getInstance()->sendSqlQuery("insert into Expenses_modified (Id, Department_id, Name, Description, Limit_value, Value, Status) values (" + QString::number(id) + ", "
+                        + QString::number(department_id) + ", \"" + name + "\", \"" + description + "\", " + QString::number(limit) + ", " + QString::number(value) + ", \"" + status + "\")");
     }
 }
 
@@ -436,7 +440,7 @@ PermissionType ControlUnit::getAccountPermission(QString username)
 
 QString ControlUnit::getActiveAccountUsername() { return active_account->getUsername(); }
 
-PermissionType ControlUnit::getActiveAccountPermission()
+PermissionType ControlUnit::getActiveAccountPermissionType()
 {
     return active_account->getPermissionType();
 }

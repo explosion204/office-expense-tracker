@@ -60,7 +60,7 @@ public:
     std::vector<QString> getAccounts();
     PermissionType getAccountPermission(QString username);
     QString getActiveAccountUsername();
-    PermissionType getActiveAccountPermission();
+    PermissionType getActiveAccountPermissionType();
     bool addAccount(QString username, QString password, PermissionType permission_type);
     void removeAccount(QString username);
 };

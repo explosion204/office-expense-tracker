@@ -347,13 +347,16 @@
           <item>
            <widget class="QLineEdit" name="usernameEdit">
             <property name="text">
-             <string>Username</string>
+             <string/>
             </property>
             <property name="echoMode">
              <enum>QLineEdit::Normal</enum>
             </property>
             <property name="readOnly">
              <bool>false</bool>
+            </property>
+            <property name="placeholderText">
+             <string>Username</string>
             </property>
            </widget>
           </item>
@@ -371,10 +374,13 @@
           <item>
            <widget class="QLineEdit" name="passwordEdit">
             <property name="text">
-             <string>Password</string>
+             <string/>
             </property>
             <property name="echoMode">
              <enum>QLineEdit::Password</enum>
+            </property>
+            <property name="placeholderText">
+             <string>Password</string>
             </property>
            </widget>
           </item>
