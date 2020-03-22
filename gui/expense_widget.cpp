@@ -49,7 +49,10 @@ void ExpenseWidget::on_pushButton_clicked()
         switch (purpose)
         {
             case ADD:
-                ControlUnit::getInstance()->addExpense(expense_id.toInt(), department_id.toInt(), name, description, value.toInt(), limit.toInt());
+                if (!ControlUnit::getInstance()->addExpense(expense_id.toInt(), department_id.toInt(), name, description, value.toInt(), limit.toInt()))
+                {
+                    //cannot add with this id
+                }
                 break;
             case EDIT:
                 ControlUnit::getInstance()->editExpense(expense_id.toInt(), department_id.toInt(), name, description, value.toInt(), limit.toInt());

@@ -40,7 +40,10 @@ void DepartmentWidget::on_pushButton_clicked()
         switch (purpose)
         {
             case ADD:
-                ControlUnit::getInstance()->addDepartment(id.toInt(), title, members_count.toInt());
+                if (ControlUnit::getInstance()->addDepartment(id.toInt(), title, members_count.toInt()))
+                {
+                    //cannot add with this id
+                }
                 break;
             case EDIT:
                 ControlUnit::getInstance()->editDepartment(id.toInt(), title, members_count.toInt());

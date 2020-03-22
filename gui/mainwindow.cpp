@@ -11,7 +11,6 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->centralwidget->layout()->addWidget(ui->tabWidget);
     ui->centralwidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     ui->tabWidget->setTabEnabled(1, false);
-    ui->tabWidget->setTabEnabled(3, false);
     //objects set up
     initViews();
 }
@@ -367,7 +366,23 @@ void MainWindow::on_departmentApproveButton_clicked()
 {
     if (ui->modifiedDepartmentsListWidget->currentRow() != -1)
     {
-
+        DepartmentItem *dep_item = dynamic_cast<DepartmentItem*>(ui->modifiedDepartmentsListWidget->currentItem());
+        DepartmentSnapshot snapshot = ControlUnit::getInstance()->getDepartmentSnapshot(dep_item->getId());
+        switch (snapshot.status)
+        {
+            case CREATED:
+                ControlUnit::getInstance()->addDepartment(snapshot.id, snapshot.title, snapshot.members_count);
+                break;
+            case MODIFIED:
+                ControlUnit::getInstance()->editDepartment(snapshot.id, snapshot.title, snapshot.members_count);
+                break;
+            case DELETED:
+                ControlUnit::getInstance()->removeDepartment(snapshot.id);
+                break;
+        }
+        ControlUnit::getInstance()->removeModifiedDepartment(snapshot.id);
+        updateModifiedDepartmentsListWidget();
+        updateDepartmentsListWidget();
     }
 }
 
@@ -375,7 +390,10 @@ void MainWindow::on_departmentRejectButton_clicked()
 {
     if (ui->modifiedDepartmentsListWidget->currentRow() != -1)
     {
-
+        DepartmentItem *dep_item = dynamic_cast<DepartmentItem*>(ui->modifiedDepartmentsListWidget->currentItem());
+        DepartmentSnapshot snapshot = ControlUnit::getInstance()->getDepartmentSnapshot(dep_item->getId());
+        ControlUnit::getInstance()->removeModifiedDepartment(snapshot.id);
+        updateModifiedDepartmentsListWidget();
     }
 }
 
@@ -383,7 +401,23 @@ void MainWindow::on_expenseApproveButton_clicked()
 {
     if (ui->modifiedExpensesListWidget->currentRow() != -1)
     {
-
+        ExpenseItem *exp_item = dynamic_cast<ExpenseItem*>(ui->modifiedExpensesListWidget->currentItem());
+        ExpenseSnapshot snapshot = ControlUnit::getInstance()->getExpenseSnapshot(exp_item->getExpenseId(), exp_item->getDepartmentId());
+        switch (snapshot.status)
+        {
+            case CREATED:
+                ControlUnit::getInstance()->addExpense(snapshot.expense_id, snapshot.department_id, snapshot.name, snapshot.description, snapshot.limit, snapshot.value);
+                break;
+            case MODIFIED:
+                ControlUnit::getInstance()->editExpense(snapshot.expense_id, snapshot.department_id, snapshot.name, snapshot.description, snapshot.limit, snapshot.value);
+                break;
+            case DELETED:
+                ControlUnit::getInstance()->removeExpense(snapshot.expense_id, snapshot.department_id);
+                break;
+        }
+        ControlUnit::getInstance()->removeModifiedExpense(snapshot.expense_id, snapshot.department_id);
+        updateModifiedExpensesListWidget();
+        updateExpensesListWidget();
     }
 }
 
@@ -391,6 +425,9 @@ void MainWindow::on_expenseRejectButton_clicked()
 {
     if (ui->modifiedExpensesListWidget->currentRow() != -1)
     {
-
+        ExpenseItem *exp_item = dynamic_cast<ExpenseItem*>(ui->modifiedExpensesListWidget->currentItem());
+        ExpenseSnapshot snapshot = ControlUnit::getInstance()->getExpenseSnapshot(exp_item->getExpenseId(), exp_item->getDepartmentId());
+        ControlUnit::getInstance()->removeModifiedExpense(snapshot.expense_id, snapshot.department_id);
+        updateModifiedExpensesListWidget();
     }
 }

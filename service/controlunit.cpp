@@ -4,10 +4,12 @@ ControlUnit* ControlUnit::instance = nullptr;
 
 ControlUnit::ControlUnit()
 {
+    accounts_loaded = false;
     authorized = false;
     department_snapshots = std::vector<DepartmentSnapshot>();
     expense_snapshots = std::vector<ExpenseSnapshot>();
-    permission = nullptr;
+    active_account = nullptr;
+    accounts = std::vector<Account>();
     aggregator = new Aggregator();
     recent_department_id = recent_expense_id = -1;
 }
@@ -58,39 +60,59 @@ void ControlUnit::initDatabase(QString db_path, QString master_key, QString user
                     "\"ADMIN\")");
 }
 
+void ControlUnit::loadAccounts()
+{
+    QSqlQuery query = Database::getInstance()->sendSqlQuery("select username, password, account_type from auth");
+    while (query.next())
+    {
+        QString username = query.value(0).toString();
+        QString password_hash = query.value(1).toString();
+        QString account_type = query.value(2).toString();
+        if (!account_type.compare("ADMIN"))
+        {
+            accounts.push_back(Account(username, password_hash, ADMIN));
+        }
+        else if (!account_type.compare("MODERATOR"))
+        {
+            accounts.push_back(Account(username, password_hash, MODERATOR));
+        }
+        else if (!account_type.compare("MANAGER"))
+        {
+            accounts.push_back(Account(username, password_hash, MANAGER));
+        }
+        else
+        {
+            accounts.push_back(Account(username, password_hash, USER));
+        }
+
+    }
+}
+
 void ControlUnit::authorize(QString db_path, QString master_key, QString username, QString password)
 {
     Database::init(db_path, master_key);
     std::string pass_hash = std::string();
     picosha2::hash256_hex_string(password.toStdString(), pass_hash);
-    QSqlQuery query = Database::getInstance()->sendSqlQuery("select username, password, account_type from auth where username = \"" + username + "\"");
-    query.first();
-    authorized = !query.value(1).toString().toStdString().compare(pass_hash);
-    if (authorized)
+    loadAccounts();
+    for (auto iter = accounts.begin(); iter != accounts.end(); iter++)
     {
-        QString account_type = query.value(2).toString();
-        if (!account_type.compare("ADMIN"))
+        if ((*iter).getUsername() == username)
         {
-            permission = new Administrator();
-        }
-        else if (!account_type.compare("MODERATOR"))
-        {
-            permission = new Moderator();
-        }
-        else if (!account_type.compare("MANAGER"))
-        {
-            permission = new Manager();
-        }
-        else
-        {
-            permission = new User();
+            if (!pass_hash.compare((*iter).getPasswordHash().toStdString()))
+            {
+                active_account = &(*iter);
+                authorized = true;
+            }
+            else
+            {
+                authorized = false;
+            }
         }
     }
 }
 
 bool ControlUnit::isAuthorized() { return authorized; }
 
-Permission* ControlUnit::getPermission() { return permission; }
 
 std::tuple<QString, int> ControlUnit::getDepartment(int id)
 {
@@ -267,25 +289,33 @@ void ControlUnit::pushModifiedData()
     }
 }
 
-void ControlUnit::addExpense(int id, int department_id, QString name, QString description, int limit, int value)
+
+
+bool ControlUnit::addExpense(int id, int department_id, QString name, QString description, int limit, int value)
 {
-    if (permission->canModifyDataDirectly())
+    if (aggregator->getDepartment(department_id)->getExpense(id) == nullptr)
     {
-        Department *department = aggregator->getDepartment(department_id);
-        department->addExpense(id, name, description, limit, value);
+        if (active_account->getPermission()->canModifyDataDirectly())
+        {
+            Department *department = aggregator->getDepartment(department_id);
+            department->addExpense(id, name, description, limit, value);
+        }
+        else
+        {
+            ExpenseSnapshot snapshot(CREATED, id, department_id, name, description, limit, value);
+            expense_snapshots.push_back(snapshot);
+        }
+        recent_department_id = department_id;
+        recent_expense_id = id;
+        return true;
     }
     else
-    {
-        ExpenseSnapshot snapshot(CREATED, id, department_id, name, description, limit, value);
-        expense_snapshots.push_back(snapshot);
-    }
-    recent_department_id = department_id;
-    recent_expense_id = id;
+        return false;
 }
 
 void ControlUnit::editExpense(int id, int department_id, QString name, QString description, int limit, int value)
 {
-    if (permission->canModifyDataDirectly())
+    if (active_account->getPermission()->canModifyDataDirectly())
     {
         Department *department = aggregator->getDepartment(department_id);
         department->editExpense(id, name, description, limit, value);
@@ -301,7 +331,7 @@ void ControlUnit::editExpense(int id, int department_id, QString name, QString d
 
 void ControlUnit::removeExpense(int id, int department_id)
 {
-    if (permission->canModifyDataDirectly())
+    if (active_account->getPermission()->canModifyDataDirectly())
     {
         Department *department = aggregator->getDepartment(department_id);
         department->removeExpense(id);
@@ -316,11 +346,11 @@ void ControlUnit::removeExpense(int id, int department_id)
     recent_expense_id = id;
 }
 
-void ControlUnit::addDepartment(int id, QString title, int members_count)
+bool ControlUnit::addDepartment(int id, QString title, int members_count)
 {
     if (aggregator->getDepartment(id) == nullptr)
     {
-        if (permission->canModifyDataDirectly())
+        if (active_account->getPermission()->canModifyDataDirectly())
         {
             aggregator->addDepartment(id, title, members_count);
         }
@@ -330,12 +360,15 @@ void ControlUnit::addDepartment(int id, QString title, int members_count)
             department_snapshots.push_back(snapshot);
         }
         recent_department_id = id;
+        return true;
     }
+    else
+        return false;
 }
 
 void ControlUnit::editDepartment(int id, QString title, int members_count)
 {
-    if (permission->canModifyDataDirectly())
+    if (active_account->getPermission()->canModifyDataDirectly())
     {
         aggregator->editDepartment(id, title, members_count);
     }
@@ -349,7 +382,7 @@ void ControlUnit::editDepartment(int id, QString title, int members_count)
 
 void ControlUnit::removeDepartment(int id)
 {
-    if (permission->canModifyDataDirectly())
+    if (active_account->getPermission()->canModifyDataDirectly())
     {
         aggregator->removeDepartment(id);
     }
@@ -360,4 +393,93 @@ void ControlUnit::removeDepartment(int id)
         department_snapshots.push_back(snapshot);
     }
     recent_department_id = id;
+}
+
+void ControlUnit::removeModifiedDepartment(int id)
+{
+    auto iter_begin = department_snapshots.begin();
+    auto iter_end = department_snapshots.end();
+    auto predicate = [id] (DepartmentSnapshot snapshot)
+    {
+        return snapshot.id == id;
+    };
+    department_snapshots.erase(std::remove_if(iter_begin, iter_end, predicate));
+}
+
+void ControlUnit::removeModifiedExpense(int id, int department_id)
+{
+    auto iter_begin = expense_snapshots.begin();
+    auto iter_end = expense_snapshots.end();
+    auto predicate = [id, department_id] (ExpenseSnapshot snapshot)
+    {
+        return snapshot.expense_id == id && snapshot.department_id == department_id;
+    };
+    expense_snapshots.erase(std::remove_if(iter_begin, iter_end, predicate));
+}
+
+std::vector<QString> ControlUnit::getAccounts()
+{
+    std::vector<QString> usernames = std::vector<QString>();
+    for (auto iter = accounts.begin(); iter != accounts.end(); iter++)
+    {
+        usernames.push_back((*iter).getUsername());
+    }
+    return usernames;
+}
+
+PermissionType ControlUnit::getAccountPermission(QString username)
+{
+    for (auto iter = accounts.begin(); iter != accounts.end(); iter++)
+    {
+        if ((*iter).getUsername() == username)
+        {
+            return (*iter).getPermissionType();
+        }
+    }
+    throw std::invalid_argument("Cannot find account.");
+}
+
+PermissionType ControlUnit::getActiveAccountPermission()
+{
+    return active_account->getPermissionType();
+}
+
+bool ControlUnit::addAccount(QString username, QString password, PermissionType permission_type)
+{
+    for (auto iter = accounts.begin(); iter != accounts.end(); iter++)
+    {
+        if ((*iter).getUsername() == username)
+        {
+            return false;
+        }
+    }
+    std::string pass_hash = std::string();
+    picosha2::hash256_hex_string(password.toStdString(), pass_hash);
+    accounts.push_back(Account(username, QString::fromStdString(pass_hash), permission_type));
+    return true;
+}
+
+void ControlUnit::editAccount(QString username, QString password, PermissionType permission_type)
+{
+    for (auto iter = accounts.begin(); iter != accounts.end(); iter++)
+    {
+        if ((*iter).getUsername() == username)
+        {
+            (*iter).setUsername(username);
+            std::string pass_hash = std::string();
+            picosha2::hash256_hex_string(password.toStdString(), pass_hash);
+            (*iter).setPassword(QString::fromStdString(pass_hash));
+            (*iter).setPermissionType(permission_type);
+        }
+    }
+    throw std::invalid_argument("Cannot find account.");
+}
+
+void ControlUnit::removeAccount(QString username)
+{
+    auto predicate = [username] (Account account)
+    {
+        return account.getUsername() == username;
+    };
+    accounts.erase(std::remove_if(accounts.begin(), accounts.end(), predicate));
 }
