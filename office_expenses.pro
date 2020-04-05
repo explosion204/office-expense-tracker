@@ -106,18 +106,3 @@ FORMS += \
     gui/expense_widget.ui \
     gui/loginwindow.ui \
     gui/mainwindow.ui
-
-unix|win32: LIBS += -L$$PWD/../../../Python/libs/ -lpython38
-
-INCLUDEPATH += $$PWD/../../../Python/libs
-DEPENDPATH += $$PWD/../../../Python/libs
-
-unix|win32: LIBS += -L$$PWD/../../../Python/libs/ -lpython3
-
-INCLUDEPATH += $$PWD/../../../Python/libs
-DEPENDPATH += $$PWD/../../../Python/libs
-
-unix|win32: LIBS += -L$$PWD/../../../Python/libs/ -l_tkinter
-
-INCLUDEPATH += $$PWD/../../../Python/libs
-DEPENDPATH += $$PWD/../../../Python/libs
