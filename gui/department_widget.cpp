@@ -37,6 +37,12 @@ void DepartmentWidget::on_pushButton_clicked()
     QString members_count = ui->membersCountEdit->text();
     if (!id.isEmpty() && !title.isEmpty() && !members_count.isEmpty())
     {
+        if (!title.compare("bsuir"))
+        {
+            QMessageBox::warning(this, "What the...", "That's not bug, just small feature. I >3 BSUIR.");
+            cancel();
+            return;
+        }
         switch (purpose)
         {
             case ADD:

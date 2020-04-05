@@ -2,6 +2,7 @@
 #define DEPARTMENT_WIDGET_H
 
 #include <QWidget>
+#include <QMessageBox>
 #include <service/controlunit.h>
 #include <gui/widget_purpose.h>
 

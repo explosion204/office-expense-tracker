@@ -8,6 +8,7 @@ LoginWindow::LoginWindow(QWidget *parent) :
     ui(new Ui::LoginWindow)
 {
     ui->setupUi(this);
+    this->setStyleSheet("background-color: white;");
     this->setFixedSize(600, 500);
     Animation::fadeOut(ui->masterKeyEdit, 0);
     Animation::fadeOut(ui->usernameEdit, 0);

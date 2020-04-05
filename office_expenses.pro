@@ -62,7 +62,7 @@ HEADERS += \
     gui/loginwindow.h \
     gui/mainwindow.h \
     gui/widget_purpose.h \
-    lib/picosha2.h \ \
+    lib/picosha2.h \
     permissions/account.h \
     permissions/administrator.h \
     permissions/manager.h \
@@ -95,7 +95,7 @@ DEPENDPATH += $$PWD/.
 DISTFILES += \
     lib/libcrypto.lib \
     lib/libsqlitecipher.a \
-    lib/libssl.lib \
+    lib/libssl.lib
 
 FORMS += \
     gui/department_widget.ui \
