@@ -571,11 +571,36 @@ void MainWindow::on_statsListWidget_currentRowChanged(int currentRow)
         ui->statsBrowser->clear();
         int department_id = dynamic_cast<DepartmentItem*>(ui->statsListWidget->item(currentRow))->getId();
         int sum = 0;
+        std::vector<std::tuple<QString, int>> expenses;
         for (int expense_id: ControlUnit::getInstance()->getExpenses(department_id))
         {
-            sum += std::get<3>(ControlUnit::getInstance()->getExpense(expense_id, department_id));
+            auto expense = ControlUnit::getInstance()->getExpense(expense_id, department_id);
+            expenses.push_back(std::make_tuple(std::get<0>(expense), std::get<3>(expense)));
+            sum += std::get<3>(expense);
         }
         ui->statsBrowser->clearHistory();
         ui->statsBrowser->setText("TOTAL EXPENSE QUANTITY: " + QString::number(sum));
+        updateChartView(expenses);
     }
+}
+
+void MainWindow::updateChartView(std::vector<std::tuple<QString, int>> expenses)
+{
+    ui->chartGrid->takeAt(0);
+    QPieSeries *series = new QPieSeries();
+    for (auto expense: expenses)
+    {
+        series->append(std::get<0>(expense), std::get<1>(expense));
+    }
+    for (auto slice: series->slices())
+    {
+        slice->setLabelVisible();
+    }
+    QChart *chart = new QChart();
+    chart->addSeries(series);
+    chart->setTitle("Expenses");
+    QChartView *chartView = new QChartView(chart);
+    chartView->setRenderHint(QPainter::Antialiasing);
+    chartView->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
+    ui->chartGrid->addWidget(chartView);
 }

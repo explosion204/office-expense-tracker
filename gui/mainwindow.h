@@ -4,12 +4,17 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include <QGridLayout>
+#include <QChartView>
+#include <QPieSlice>
+#include <QPieSeries>
 #include <service/controlunit.h>
 #include <gui/department_item.h>
 #include <gui/department_widget.h>
 #include <gui/expense_item.h>
 #include <gui/expense_widget.h>
 #include <gui/widget_purpose.h>
+
+using namespace QtCharts;
 
 namespace Ui {
 class MainWindow;
@@ -49,6 +54,7 @@ private:
     void closeEvent(QCloseEvent *event) override;
 
     void initViews();
+    void updateChartView(std::vector<std::tuple<QString, int>> expenses);
     void enableControls();
     void disableControls();
     void hideAllAddEditTabs();
