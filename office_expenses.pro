@@ -46,10 +46,8 @@ SOURCES += \
     permissions/manager.cpp \
     permissions/moderator.cpp \
     service/animation.cpp \
-    service/computeunit.cpp \
     service/controlunit.cpp \
-    service/database.cpp \
-    service/diagram.cpp
+    service/database.cpp
 
 HEADERS += \
     data/aggregator.h \
@@ -71,10 +69,8 @@ HEADERS += \
     permissions/moderator.h \
     permissions/permission.h \
     service/animation.h \
-    service/computeunit.h \
     service/controlunit.h \
-    service/database.h \
-    service/diagram.h
+    service/database.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

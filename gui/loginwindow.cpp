@@ -32,6 +32,10 @@ void LoginWindow::on_loginButton_clicked()
         close();
         (new MainWindow())->showMaximized();
     }
+    else
+    {
+        QMessageBox::warning(this, "Authentification error.", "Invalid username, password or master key");
+    }
 }
 
 void LoginWindow::on_createDBButton_clicked()
