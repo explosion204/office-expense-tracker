@@ -8,6 +8,14 @@ Department::Department(int id, QString title, int members_count)
     this->members_count = members_count;
 }
 
+Department::~Department()
+{
+    for (auto expense: expense_list)
+    {
+        delete expense;
+    }
+}
+
 std::vector<Expense*> Department::getExpenses() { return expense_list; }
 
 QString Department::getTitle() { return title; }

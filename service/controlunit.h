@@ -28,6 +28,7 @@ private:
     int recent_department_id;
     int recent_expense_id;
 public:
+    ~ControlUnit();
     static ControlUnit* getInstance();
     void initDatabase(QString db_path, QString master_key, QString username, QString password);
     void loadAccounts();

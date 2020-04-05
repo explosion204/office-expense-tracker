@@ -11,6 +11,7 @@ private:
     std::vector<Department*> departments_list;
 public:
     Aggregator();
+    ~Aggregator();
     std::vector<Department*> getDepartments();
     void addDepartment(int id, QString title, int members_count);
     void removeDepartment(int id);

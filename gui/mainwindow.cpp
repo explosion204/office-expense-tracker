@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent) :
 MainWindow::~MainWindow()
 {
     delete ui;
+    delete ControlUnit::getInstance();
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)

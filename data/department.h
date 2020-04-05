@@ -16,6 +16,7 @@ private:
     std::vector<Expense*> expense_list;
 public:
     Department(int id, QString title, int members_count);
+    ~Department();
     std::vector<Expense*> getExpenses();
     QString getTitle();
     int getId();

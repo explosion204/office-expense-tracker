@@ -14,6 +14,11 @@ ControlUnit::ControlUnit()
     recent_department_id = recent_expense_id = -1;
 }
 
+ControlUnit::~ControlUnit()
+{
+    delete aggregator;
+}
+
 ControlUnit* ControlUnit::getInstance()
 {
     if (instance  == nullptr)
