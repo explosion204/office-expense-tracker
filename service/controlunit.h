@@ -29,6 +29,7 @@ private:
     int recent_expense_id;
 public:
     static ControlUnit* getInstance();
+    ~ControlUnit();
     void initDatabase(QString db_path, QString master_key, QString username, QString password);
     void loadAccounts();
     void authorize(QString db_path, QString master_key, QString username, QString password);

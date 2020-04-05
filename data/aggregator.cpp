@@ -5,6 +5,12 @@ Aggregator::Aggregator()
     departments_list = std::vector<Department*>();
 }
 
+Aggregator::~Aggregator()
+{
+    for (auto iter = departments_list.begin(); iter != departments_list.end(); iter++)
+        delete *iter;
+}
+
 void Aggregator::editDepartment(int id, QString title, int members_count)
 {
     Department *department = getDepartment(id);

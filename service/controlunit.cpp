@@ -14,6 +14,11 @@ ControlUnit::ControlUnit()
     recent_department_id = recent_expense_id = -1;
 }
 
+ControlUnit::~ControlUnit()
+{
+    delete aggregator;
+}
+
 ControlUnit* ControlUnit::getInstance()
 {
     if (instance  == nullptr)
@@ -159,7 +164,12 @@ ExpenseSnapshot ControlUnit::getExpenseSnapshot(int expense_id, int department_i
 
 std::tuple<QString, QString, int, int> ControlUnit::getExpense(int expense_id, int department_id)
 {
-    Expense *expense = aggregator->getDepartment(department_id)->getExpense(expense_id);
+    Department *department = aggregator->getDepartment(department_id);
+    if (department == nullptr)
+        throw std::invalid_argument("Cannot find department with such id.");
+    Expense *expense = department->getExpense(expense_id);
+    if (expense == nullptr)
+        throw std::invalid_argument("Cannot find expense with such id.");
     recent_department_id = department_id;
     recent_expense_id = expense_id;
     return std::make_tuple(expense->getName(), expense->getDescription(), expense->getValue(), expense->getLimit());
@@ -179,6 +189,8 @@ std::vector<int> ControlUnit::getExpenses(int department_id)
 {
     std::vector<int> expense_ids = std::vector<int>();
     Department *department = aggregator->getDepartment(department_id);
+    if (department == nullptr)
+        throw std::invalid_argument("Cannot find department with such id.");
     for (Expense *expense : department->getExpenses())
     {
         expense_ids.push_back(expense->getId());

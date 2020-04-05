@@ -4,6 +4,8 @@
 #include <QMainWindow>
 #include <QCloseEvent>
 #include <QGridLayout>
+#include <QPixmap>
+#include <QDebug>
 #include <service/controlunit.h>
 #include <gui/department_item.h>
 #include <gui/department_widget.h>
@@ -43,6 +45,8 @@ private slots:
     void on_updateStatsButton_clicked();
 
     void on_statsListWidget_currentRowChanged(int currentRow);
+
+    void on_pushButton_clicked();
 
 private:
     Ui::MainWindow *ui;
